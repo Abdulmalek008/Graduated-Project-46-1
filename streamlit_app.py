@@ -3,9 +3,9 @@ import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 
-st.title(' 🤖 تطبيق تعلم الالة ')
+st.title('   مقاضي لاسامة  ')
 
-st.error('This is app builds a machine learning model!')
+st.error('مهم جدا تكون المقاضي ذات جودة عالية ')
 
 with st.expander('Data'):
   st.write('**Raw data**')
