@@ -25,7 +25,8 @@ with st.expander('Data visualization'):
 
 with st.sidebar:
   st.header('Input features')
-  gender = st.selectbox('Gender',('Female','Male')
+  gender = st.selectbox('Gender',('Female','Male'))
+  
   attendance_score = st.slider('attendance_score' , 1 , 5 , 3)
   mid_exam_score = st.slider('mid_exam_score' , 0 , 15 , 10)
   lap_exam_score = st.slider('lap_exam_score' , 0 , 15 , 10)
