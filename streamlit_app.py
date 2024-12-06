@@ -26,5 +26,6 @@ with st.expander('Data visualization'):
 with st.sidebar:
   st.header('Input features')
   gender = st.selectbox('Gender',('Female','Male'))
+  attendance = st.selectbox('Attendance'.('1','2','3','4','5'))
  
   
