@@ -93,21 +93,21 @@ st.dataframe(df_prediction_proba,
              column_config={
                'A':st.column_config.ProgressColumn(
                  'A',
-                 format='%i',
+                 format='%f',
                  width='large',
                  min_value=80,
                  max_value=100
                ),
                'B':st.column_config.ProgressColumn(
                  'B',
-                 format='%i',
+                 format='%f',
                  width='large',
                  min_value=70,
                  max_value=80
                ),
                'C':st.column_config.ProgressColumn(
                  'C',
-                 format='%i',
+                 format='%f',
                  width='large',
                  min_value=0,
                  max_value=60
@@ -115,7 +115,7 @@ st.dataframe(df_prediction_proba,
              }, hide_index=True)
 
 student_level = np.array(['A', 'B', 'C',])
-st.success(str(student_level[Prediction][0]))
+st.success(str(student_level[0]))
                  
 
 
