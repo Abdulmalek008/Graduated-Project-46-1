@@ -53,6 +53,8 @@ with st.expander('input features'):
 #encode x
 encode = ['Student_ID', 'Gender']
 df_student = pd.get_dummies(input_student, prefix=encode)
+
+X = df_student[1:]
 input_row = df_student[:1]
 
 #encode y
@@ -73,6 +75,13 @@ with st.expander('Data preparation'):
 
 
 
+clf = RandomForestClassifier()
+clf.fit(X, y)
+
+predicyion = clf.predict(input_row)
+prediction_proba = clf.predict_proba(input_row)
+
+prediction_proba
 
 
 
