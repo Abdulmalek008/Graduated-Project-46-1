@@ -33,7 +33,7 @@ with st.sidebar:
   activity_score = st.slider('activity_score' , 0 , 25 , 10)
   total = st.slider('total' , 0 , 100 , 50)
 
-data = {'Gender': Gender,
+data = {'gender': gender,
         'attendance_score': attendance_score,
         'mid_exam_score': mid_eaxam_scor,
         'lap_exam_score': lap_exam_score,
