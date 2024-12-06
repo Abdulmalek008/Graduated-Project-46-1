@@ -28,4 +28,6 @@ with st.sidebar:
   gender = st.selectbox('Gender',('Female','Male'))
   attendance = st.selectbox('Attendance',('1','2','3','4','5'))
   mid_exam_score = st.slider('mid_exam_score' , 0 , 15 , 10)
+  lap_exam_score = st.slider('lap_exam_score' , 0 , 15 , 10)
+  
   
