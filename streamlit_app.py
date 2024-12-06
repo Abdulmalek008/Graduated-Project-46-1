@@ -40,17 +40,17 @@ with st.sidebar:
         'activity_score': activity_score,
         'total': total}
   input_df = pd.DataFrame(data, index=[0])
-  input_penguins = pd.concat([input_df, X], axis=0)
+  input_student = pd.concat([input_df, X], axis=0)
 
 with st.expander('input features'):
-  st.write('**input penguins**')
+  st.write('**input student**')
   input_df
-  st.write('**Comined penguins data**')
-  input_penguins
+  st.write('**Comined student data**')
+  input_student
 
 
 
-input_df
+
 
         
   
