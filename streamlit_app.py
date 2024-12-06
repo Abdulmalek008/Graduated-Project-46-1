@@ -12,3 +12,10 @@ with st.expander('البيانات'):
   df = pd.read_csv('https://raw.githubusercontent.com/Abdulmalek008/Graduated-Project-46-1/refs/heads/master/Student_Info%202.csv')
   df
 
+st.write('**X**')
+X = df.drop('Level', axis=1)
+X
+
+st.write('**y**')
+y = df.Level
+y
