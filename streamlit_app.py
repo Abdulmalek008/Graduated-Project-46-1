@@ -9,6 +9,6 @@ st.error('. ')
 
 with st.expander('Data'):
   st.write('**Raw data**')
-  df = pd.read_csv('https://drive.google.com/file/d/1JmNRAb3bE7nlQ3ySztNvnEa0i_48dJgi/view?usp=drive_link')
+  df = pd.read_csv('https://raw.githubusercontent.com/Abdulmalek008/Graduated-Project-46-1/refs/heads/master/Student_Info%202.csv')
   df
 
