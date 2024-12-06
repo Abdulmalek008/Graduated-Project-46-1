@@ -13,13 +13,13 @@ with st.expander('Data'):
   df = pd.read_csv('https://raw.githubusercontent.com/Abdulmalek008/Graduated-Project-46-1/refs/heads/master/Student_Info%202.csv')
   df
 
-st.write('**X**')
-X_raw = df.drop('Level', axis=1)
-X_raw
+  st.write('**X**')
+  X_raw = df.drop('Level', axis=1)
+  X_raw
 
-st.write('**y**')
-y_raw = df.Level
-y_raw
+  st.write('**y**')
+  y_raw = df.Level
+  y_raw
 
 with st.expander('Data visualization'):
  st.scatter_chart(data=df , x='Attendance_Score', y='Total', color='Level') 
