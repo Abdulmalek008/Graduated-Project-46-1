@@ -93,22 +93,22 @@ st.dataframe(df_prediction_proba,
              column_config={
                'A':st.column_config.ProgressColumn(
                  'A',
-                 format='%e',
-                 width='medium',
+                 format='%i',
+                 width='large',
                  min_value=80,
                  max_value=100
                ),
                'B':st.column_config.ProgressColumn(
                  'B',
-                 format='%e',
-                 width='medium',
+                 format='%i',
+                 width='large',
                  min_value=70,
                  max_value=80
                ),
                'C':st.column_config.ProgressColumn(
                  'C',
-                 format='%e',
-                 width='medium',
+                 format='%i',
+                 width='large',
                  min_value=0,
                  max_value=60
                ),
