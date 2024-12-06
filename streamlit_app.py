@@ -58,7 +58,7 @@ with st.expander('input features'):
   input_df
   st.write('**Comined student data**')
   input_student
-  st.write('Encode input student')
+  st.write('**Encode input student**')
   input_row
 
 
