@@ -27,5 +27,5 @@ with st.sidebar:
   st.header('Input features')
   Attendance = st.selecbox('Attendance',('1','2','3','4','5'))
   Gender = st.selectbox('Gender',('Female','Male'))
-  Mid_Exam_Score = st.slider('mid_exam_score',0,15,0)
+ 
   
