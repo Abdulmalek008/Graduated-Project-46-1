@@ -47,17 +47,19 @@ with st.sidebar:
   input_df = pd.DataFrame(data, index=[0])
   input_student = pd.concat([input_df, X], axis=0)
 
+
+  encode = ['Student_ID', 'Gender']
+  df_student = pd.get_dummies(input_student, prefix=encode)
+  input_row = df_student[:1]
+
+
 with st.expander('input features'):
   st.write('**input student**')
   input_df
   st.write('**Comined student data**')
   input_student
-
-encode = ['Student_ID', 'Gender']
-df_student = pd.get_dummies(input_student, prefix=encode)
-df_student[:1]
-
-
+  st.write('Encode input student')
+  input_row
 
 
 
