@@ -16,7 +16,7 @@ with st.expander('Data'):
   st.write('**X**')
   X_raw = df.drop('Level', axis=1)
   X_raw
-
+  
   st.write('**y**')
   y_raw = df.Level
   y_raw
