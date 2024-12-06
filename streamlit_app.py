@@ -45,6 +45,11 @@ with st.sidebar:
   input_df = pd.DataFrame(data, index=[0])
   input_student = pd.concat([input_df, X_raw], axis=0)
 
+with st.expander('input features'):
+  st.write('**input student**')
+  input_df
+  st.write('**Comined student data**')
+  input_student
 #encode x
 encode = ['Student_ID', 'Gender']
 df_student = pd.get_dummies(input_student, prefix=encode)
@@ -57,15 +62,18 @@ target_mapper = {'a': 0,
 def target_encode(val):
   return target_mapper[val]
 
+y = y_raw.apply(target_encode)
 
 
-with st.expander('input features'):
-  st.write('**input student**')
-  input_df
-  st.write('**Comined student data**')
-  input_student
-  st.write('**Encode input student**')
+with st.expander('Data preparation')  
+  st.write('**Encode X (input student)**')
   input_row
+  st.write('**Encode y**')
+  y
+
+
+
+
 
 
 
