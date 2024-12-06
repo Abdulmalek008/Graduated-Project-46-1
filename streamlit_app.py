@@ -60,9 +60,6 @@ def target_encode(val):
   return target_mapper[val]
 
 
-
-
-
 with st.expander('input features'):
   st.write('**input student**')
   input_df
