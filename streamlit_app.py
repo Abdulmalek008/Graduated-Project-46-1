@@ -14,12 +14,12 @@ with st.expander('Data'):
   df
 
 st.write('**X**')
-X = df.drop('Level', axis=1)
-X
+X_raw = df.drop('Level', axis=1)
+X_raw
 
 st.write('**y**')
-y = df.Level
-y
+y_raw = df.Level
+y_raw
 
 with st.expander('Data visualization'):
  st.scatter_chart(data=df , x='Attendance_Score', y='Total', color='Level') 
@@ -45,12 +45,22 @@ with st.sidebar:
         'Activity_Score': activity_score,
         'Final_Score': final_score}
   input_df = pd.DataFrame(data, index=[0])
-  input_student = pd.concat([input_df, X], axis=0)
+  input_student = pd.concat([input_df, X_raw], axis=0)
+
+#encode x
+encode = ['Student_ID', 'Gender']
+df_student = pd.get_dummies(input_student, prefix=encode)
+input_row = df_student[:1]
+
+#encode y
+ target_mapper = {'A': 0,
+                  'B': 1,
+                  'C': 2}
+def target_encode(val):
+  return target_mapper[val]
 
 
-  encode = ['Student_ID', 'Gender']
-  df_student = pd.get_dummies(input_student, prefix=encode)
-  input_row = df_student[:1]
+
 
 
 with st.expander('input features'):
