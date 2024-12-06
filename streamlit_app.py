@@ -1,3 +1,4 @@
+
 import streamlit as st
 import numpy as np
 import pandas as pd
@@ -31,14 +32,14 @@ with st.sidebar:
   mid_exam_score = st.slider('mid_exam_score' , 0 , 15 , 10)
   lap_exam_score = st.slider('lap_exam_score' , 0 , 15 , 10)
   activity_score = st.slider('activity_score' , 0 , 25 , 10)
-  total = st.slider('total' , 0 , 100 , 50)
+  final_score = st.slider('final_score' , 0 , 100 , 50)
 
   data = {'Gender': gender,
         'Attendance_Score': attendance_score,
         'Mid_Exam_Score': mid_exam_score,
         'Lap_Exam_Score': lap_exam_score,
         'Activity_Score': activity_score,
-        'Total': total}
+        'Final_Score': final_score}
   input_df = pd.DataFrame(data, index=[0])
   input_student = pd.concat([input_df, X], axis=0)
 
@@ -47,6 +48,11 @@ with st.expander('input features'):
   input_df
   st.write('**Comined student data**')
   input_student
+
+encode = ['Gender']
+df_student = pd.get_dummies(input_student, prefix=encode)
+df_student[:1]
+
 
 
 
