@@ -20,5 +20,5 @@ st.write('**y**')
 y = df.Level
 y
 
-with st.expander('Data visualization"):
+with st.expander('Data visualization'):
  st.scatter_chart(data=df , x='Attendance_Score', y='Final_Score', color='Level') 
