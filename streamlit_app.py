@@ -33,7 +33,7 @@ with st.sidebar:
   
   attendance_score = st.slider('attendance_score' , 1 , 5 , 3)
   mid_exam_score = st.slider('mid_exam_score' , 0 , 15 , 10)
-  lap_exam_score = st.slider('lap_exam_score' , 0 , 15 , 10)
+  lab_exam_score = st.slider('lab_exam_score' , 0 , 15 , 10)
   activity_score = st.slider('activity_score' , 0 , 25 , 10)
   final_score = st.slider('final_score' , 0 , 40, 20)
 
@@ -41,7 +41,7 @@ with st.sidebar:
         'Gender': gender,
         'Attendance_Score': attendance_score,
         'Mid_Exam_Score': mid_exam_score,
-        'Lap_Exam_Score': lap_exam_score,
+        'Lab_Exam_Score': lab_exam_score,
         'Activity_Score': activity_score,
         'Final_Score': final_score}
   input_df = pd.DataFrame(data, index=[0])
