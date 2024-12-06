@@ -38,6 +38,7 @@ with st.sidebar:
   final_score = st.slider('final_score' , 0 , 40, 20)
 
   data = {'Student_ID': student_ID,
+        'Gender': gender,
         'Attendance_Score': attendance_score,
         'Mid_Exam_Score': mid_exam_score,
         'Lap_Exam_Score': lap_exam_score,
