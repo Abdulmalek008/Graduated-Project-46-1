@@ -65,7 +65,7 @@ def target_encode(val):
 y = y_raw.apply(target_encode)
 
 
-with st.expander('Data preparation')  
+with st.expander('Data preparation'):  
   st.write('**Encode X (input student)**')
   input_row
   st.write('**Encode y**')
