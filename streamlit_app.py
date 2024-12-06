@@ -78,7 +78,7 @@ with st.expander('Data preparation'):
 clf = RandomForestClassifier()
 clf.fit(X, y)
 
-predicyion = clf.predict(input_row)
+prediction = clf.predict(input_row)
 prediction_proba = clf.predict_proba(input_row)
 
 df_prediction_proba = pd.DataFrame(prediction_proba)
@@ -115,7 +115,7 @@ st.dataframe(df_prediction_proba,
              }, hide_index=True)
 
 student_level = np.array(['A', 'B', 'C',])
-st.success(str(student_level['prediction'][0]))
+st.success(str(student_level[prediction][0]))
                  
 
 
