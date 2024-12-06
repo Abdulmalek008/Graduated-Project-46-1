@@ -29,5 +29,7 @@ with st.sidebar:
   attendance = st.selectbox('Attendance',('1','2','3','4','5'))
   mid_exam_score = st.slider('mid_exam_score' , 0 , 15 , 10)
   lap_exam_score = st.slider('lap_exam_score' , 0 , 15 , 10)
+  activity_score = st.slider('activity_score' , 0 , 25 , 10)
+  
   
   
