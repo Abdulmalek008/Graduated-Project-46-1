@@ -33,12 +33,12 @@ with st.sidebar:
   activity_score = st.slider('activity_score' , 0 , 25 , 10)
   total = st.slider('total' , 0 , 100 , 50)
 
-  data = {'gender': gender,
-        'attendance_score': attendance_score,
-        'mid_exam_score': mid_exam_score,
-        'lap_exam_score': lap_exam_score,
-        'activity_score': activity_score,
-        'total': total}
+  data = {'gender': Gender,
+        'attendance_score': Attendance_Score,
+        'mid_exam_score': Mid_Exam_Score,
+        'lap_exam_score': Lap_Exam_Score,
+        'activity_score': Activity_Score,
+        'total': Total}
   input_df = pd.DataFrame(data, index=[0])
   input_student = pd.concat([input_df, X], axis=0)
 
