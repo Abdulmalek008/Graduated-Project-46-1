@@ -21,4 +21,4 @@ y = df.Level
 y
 
 with st.expander('Data visualization'):
- st.scatter_chart(data=df , x='Total', y='Student_ID', color='Level') 
+ st.scatter_chart(data=df , x='Attendance_Score', y='Total', color='Level') 
