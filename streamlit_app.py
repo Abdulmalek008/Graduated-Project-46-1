@@ -35,7 +35,7 @@ with st.sidebar:
 
 data = {'gender': gender,
         'attendance_score': attendance_score,
-        'mid_exam_score': mid_eaxam_score,
+        'mid_exam_score': mid_exam_score,
         'lap_exam_score': lap_exam_score,
         'activity_score': activity_score,
         'total': total}
