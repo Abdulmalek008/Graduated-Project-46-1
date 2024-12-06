@@ -94,23 +94,23 @@ st.dataframe(df_prediction_proba,
                'A':st.column_config.ProgressColumn(
                  'A',
                  format='%f',
-                 width='large',
-                 min_value=80,
-                 max_value=100
+                 width='medium',
+                 min_value=0,
+                 max_value=1
                ),
                'B':st.column_config.ProgressColumn(
                  'B',
                  format='%f',
-                 width='large',
-                 min_value=70,
-                 max_value=80
+                 width='medium',
+                 min_value=0,
+                 max_value=1
                ),
                'C':st.column_config.ProgressColumn(
                  'C',
                  format='%f',
-                 width='large',
+                 width='medium',
                  min_value=0,
-                 max_value=60
+                 max_value=1
                ),
              }, hide_index=True)
 
