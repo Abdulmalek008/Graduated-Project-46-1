@@ -22,3 +22,6 @@ y
 
 with st.expander('Data visualization'):
  st.scatter_chart(data=df , x='Attendance_Score', y='Total', color='Level') 
+
+with st.sidebar:
+  st.header('Input features')
