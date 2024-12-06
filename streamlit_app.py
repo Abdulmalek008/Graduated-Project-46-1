@@ -53,7 +53,7 @@ with st.expander('input features'):
   st.write('**Comined student data**')
   input_student
 
-encode = ['Gender']
+encode = ['Student_ID', 'Gender']
 df_student = pd.get_dummies(input_student, prefix=encode)
 df_student[:1]
 
