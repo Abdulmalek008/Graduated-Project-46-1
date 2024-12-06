@@ -89,8 +89,10 @@ df_prediction_proba.rename(columns={0: 'A',
 df_prediction_proba
                                   
 st.subheader('prediction level')
-student_Level = np.array(['A','B','C'])
-st.success(str(student_level[prediction][0]))
+df_prediction_proba
+
+student_level = np.array(['A','B','C'])
+st.success(str(student_level [prediction] [0] ))
 
 
 
