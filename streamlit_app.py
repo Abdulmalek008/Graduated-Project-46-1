@@ -95,22 +95,22 @@ st.dataframe(df_prediction_proba,
                  'A',
                  format='%f',
                  width='medium',
-                 min_value=0,
-                 max_value=1
+                 min_value=80,
+                 max_value=100
                ),
                'B':st.column_config.ProgressColumn(
                  'B',
                  format='%f',
                  width='medium',
-                 min_value=0,
-                 max_value=1
+                 min_value=70,
+                 max_value=80
                ),
                'C':st.column_config.ProgressColumn(
                  'C',
                  format='%f',
                  width='medium',
                  min_value=0,
-                 max_value=1
+                 max_value=60
                ),
              }, hide_index=True)
 
