@@ -33,20 +33,21 @@ with st.sidebar:
   activity_score = st.slider('activity_score' , 0 , 25 , 10)
   total = st.slider('total' , 0 , 100 , 50)
 
-data = {'gender': gender,
+  data = {'gender': gender,
         'attendance_score': attendance_score,
         'mid_exam_score': mid_exam_score,
         'lap_exam_score': lap_exam_score,
         'activity_score': activity_score,
         'total': total}
-input_df = pd.DataFrame(data, index=[0])
-input_penguins = pd.concat([input_df, X], axis=0)
+  input_df = pd.DataFrame(data, index=[0])
+  input_penguins = pd.concat([input_df, X], axis=0)
 
 with st.expander('input features'):
-st.write('**input penguins**')
-input_df
-st.write('**Comined penguins data**')
-input_penguins
+  st.write('**input penguins**')
+  input_df
+  st.write('**Comined penguins data**')
+  input_penguins
+
 
 
 input_df
