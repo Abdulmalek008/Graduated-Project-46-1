@@ -7,8 +7,8 @@ st.title('   .  ')
 
 st.error('. ')
 
-with st.expander('Data'):
-  st.write('**Raw data**')
+with st.expander(''):
+  st.write('**بيانات الطلاب**')
   df = pd.read_csv('https://raw.githubusercontent.com/Abdulmalek008/Graduated-Project-46-1/refs/heads/master/Student_Info%202.csv')
   df
 
