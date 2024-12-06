@@ -56,9 +56,9 @@ df_student = pd.get_dummies(input_student, prefix=encode)
 input_row = df_student[:1]
 
 #encode y
-target_mapper = {'a': 0,
-                 'b': 1,
-                 'c': 2}
+target_mapper = {'C': 0,
+                 'B': 1,
+                 'A': 2}
 def target_encode(val):
   return target_mapper[val]
 
