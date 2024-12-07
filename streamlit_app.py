@@ -7,26 +7,27 @@ from sklearn.model_selection import train_test_split
 # عنوان التطبيق
 st.title('🎓 Student Final Grade Prediction')
 
-st.info('This app predicts the student’s final grade (A, B, C) based on their total score.')
+st.info('This app predicts the student’s final grade (A, B, C) based on their scores.')
 
 # تحميل البيانات
 with st.expander('📊 Dataset'):
     # قراءة البيانات
     df = pd.read_csv('https://raw.githubusercontent.com/Abdulmalek008/Graduated-Project-46-1/refs/heads/master/Student_Info%202.csv')
     
-    # حساب الإجمالي
-    df['Total'] = df[['Mid_Exam_Score', 'Lab_Exam_Score', 'Activity_Score', 'Final_Score']].sum(axis=1)
+    # حذف عمود "Total"
+    df.drop(columns=['Total'], inplace=True)
     
-    # تصنيف الطلاب بناءً على الإجمالي
-    def classify_level(total):
-        if total > 80:
+    # تصنيف الطلاب بناءً على الدرجات التفصيلية
+    def classify_level(row):
+        total_score = row['Mid_Exam_Score'] + row['Lab_Exam_Score'] + row['Activity_Score'] + row['Final_Score']
+        if total_score > 80:
             return 'A'
-        elif total >= 60:
+        elif total_score >= 60:
             return 'B'
         else:
             return 'C'
 
-    df['Level'] = df['Total'].apply(classify_level)
+    df['Level'] = df.apply(classify_level, axis=1)
     st.write('### Raw Data:')
     st.dataframe(df)
 
@@ -37,7 +38,7 @@ with st.expander('⚙️ Data Preparation'):
     # ترميز العمود النصي (Gender)
     df_encoded = pd.get_dummies(df, columns=['Gender'], drop_first=True)
     
-    X = df_encoded.drop(columns=['Level', 'Total', 'Student_ID'])
+    X = df_encoded.drop(columns=['Level', 'Student_ID'])
     y = df['Level']
     
     st.write('#### Features (X):')
