@@ -1,118 +1,90 @@
 import streamlit as st
-import numpy as np
 import pandas as pd
+import numpy as np
 from sklearn.ensemble import RandomForestClassifier
-import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
 
-st.title('🤖 Machine Learning Application for Predicting Students Final Grade')
+# عنوان التطبيق
+st.title('🎓 Student Final Grade Prediction')
 
-st.info('This app predicts students’ final grades (A, B, or C) using a machine learning model.')
+st.info('This app predicts the student’s final grade (A, B, C) based on their total score.')
 
 # تحميل البيانات
-with st.expander('Data'):
-    st.write('**Raw Data**')
+with st.expander('📊 Dataset'):
+    # قراءة البيانات
     df = pd.read_csv('https://raw.githubusercontent.com/Abdulmalek008/Graduated-Project-46-1/refs/heads/master/Student_Info%202.csv')
-    st.write(df)
+    
+    # حساب الإجمالي
+    df['Total'] = df[['Mid_Exam_Score', 'Lab_Exam_Score', 'Activity_Score', 'Final_Score']].sum(axis=1)
+    
+    # تصنيف الطلاب بناءً على الإجمالي
+    def classify_level(total):
+        if total > 80:
+            return 'A'
+        elif total >= 60:
+            return 'B'
+        else:
+            return 'C'
 
-# حساب المجموع وإضافة التصنيف
-def assign_grade(total):
-    if total > 80:
-        return 'A'
-    elif 60 <= total <= 80:
-        return 'B'
-    else:
-        return 'C'
+    df['Level'] = df['Total'].apply(classify_level)
+    st.write('### Raw Data:')
+    st.dataframe(df)
 
-df['Total'] = df[['Mid_Exam_Score', 'Lab_Exam_Score', 'Activity_Score', 'Final_Score']].sum(axis=1)
-df['Grade'] = df['Total'].apply(assign_grade)
+# تجهيز البيانات للتعلم الآلي
+with st.expander('⚙️ Data Preparation'):
+    st.write('### Features and Target:')
+    X = df.drop(columns=['Level', 'Total', 'Student_ID'])
+    y = df['Level']
+    st.write('#### Features (X):')
+    st.dataframe(X)
+    st.write('#### Target (y):')
+    st.dataframe(y)
 
-# رسم بياني لتوزيع التصنيفات
-with st.expander('Data Visualization'):
-    st.write('**Grade Distribution**')
-    grade_counts = df['Grade'].value_counts()
-    fig, ax = plt.subplots()
-    ax.bar(grade_counts.index, grade_counts.values, color=['green', 'orange', 'red'])
-    ax.set_title('Distribution of Grades')
-    ax.set_xlabel('Grade')
-    ax.set_ylabel('Count')
-    st.pyplot(fig)
-
-# إعداد البيانات للنموذج
-X = df.drop(['Grade', 'Level', 'Total'], axis=1)
-y = df['Grade']
-
-# تشفير البيانات
-X_encoded = pd.get_dummies(X, columns=['Student_ID', 'Gender'], drop_first=True)
-target_mapper = {'A': 0, 'B': 1, 'C': 2}
-y_encoded = y.map(target_mapper)
+# تقسيم البيانات
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
 # تدريب النموذج
-clf = RandomForestClassifier(random_state=42)
-clf.fit(X_encoded, y_encoded)
+model = RandomForestClassifier(random_state=42)
+model.fit(X_train, y_train)
 
-# إدخال بيانات جديدة
-st.sidebar.header('Input features')
-student_ID = st.sidebar.selectbox('Student_ID', [f"S{str(i).zfill(3)}" for i in range(1, 151)])
-gender = st.sidebar.selectbox('Gender', ('Female', 'Male'))
-attendance_score = st.sidebar.slider('Attendance_Score', 1, 5, 3)
-mid_exam_score = st.sidebar.slider('Mid_Exam_Score', 0, 15, 10)
-lab_exam_score = st.sidebar.slider('Lab_Exam_Score', 0, 15, 10)
-activity_score = st.sidebar.slider('Activity_Score', 0, 25, 10)
-final_score = st.sidebar.slider('Final_Score', 0, 40, 20)
+# واجهة المستخدم لتنبؤ درجة طالب جديد
+with st.sidebar:
+    st.header('🔍 Input Features')
+    gender = st.selectbox('Gender', ['Male', 'Female'])
+    attendance_score = st.slider('Attendance Score', 1, 5, 3)
+    mid_exam_score = st.slider('Mid Exam Score', 0, 15, 10)
+    lab_exam_score = st.slider('Lab Exam Score', 0, 15, 10)
+    activity_score = st.slider('Activity Score', 0, 25, 15)
+    final_score = st.slider('Final Exam Score', 0, 40, 20)
 
-# تحضير بيانات الطالب الجديد
-input_data = pd.DataFrame({
-    'Student_ID': [student_ID],
+# تجهيز البيانات للتنبؤ
+new_data = pd.DataFrame({
     'Gender': [gender],
     'Attendance_Score': [attendance_score],
     'Mid_Exam_Score': [mid_exam_score],
     'Lab_Exam_Score': [lab_exam_score],
     'Activity_Score': [activity_score],
-    'Final_Score': [final_score]
+    'Final_Score': [final_score],
 })
 
-# تشفير بيانات الطالب الجديد
-input_encoded = pd.get_dummies(input_data, columns=['Student_ID', 'Gender'], drop_first=True)
-input_encoded = input_encoded.reindex(columns=X_encoded.columns, fill_value=0)
+# تحويل البيانات النصية إلى أرقام
+new_data_encoded = pd.get_dummies(new_data, drop_first=True)
 
-# تنبؤ النموذج
-prediction = clf.predict(input_encoded)
-prediction_proba = clf.predict_proba(input_encoded)
+# إضافة الأعمدة المفقودة
+for col in X.columns:
+    if col not in new_data_encoded:
+        new_data_encoded[col] = 0
 
-# عرض النتائج
-grades = {0: 'A', 1: 'B', 2: 'C'}
-predicted_grade = grades[prediction[0]]
+# التنبؤ
+prediction = model.predict(new_data_encoded)
+prediction_proba = model.predict_proba(new_data_encoded)
 
-st.subheader('Prediction Results')
+# عرض التنبؤ
+with st.expander('📈 Prediction Results'):
+    st.write('### Predicted Level:')
+    st.success(prediction[0])
+    st.write('### Prediction Probability:')
+    proba_df = pd.DataFrame(prediction_proba, columns=model.classes_)
+    st.bar_chart(proba_df.T)
 
-# عرض النتائج بتنسيق جميل
-st.dataframe(pd.DataFrame(prediction_proba, columns=['A', 'B', 'C']),
-             column_config={
-                 'A': st.column_config.ProgressColumn(
-                     'A',
-                     format='%f',
-                     width='medium',
-                     min_value=0,
-                     max_value=1
-                 ),
-                 'B': st.column_config.ProgressColumn(
-                     'B',
-                     format='%f',
-                     width='medium',
-                     min_value=0,
-                     max_value=1
-                 ),
-                 'C': st.column_config.ProgressColumn(
-                     'C',
-                     format='%f',
-                     width='medium',
-                     min_value=0,
-                     max_value=1
-                 ),
-             }, hide_index=True)
-
-st.success(f"The predicted grade is: **{predicted_grade}**")
-
-# عرض التصنيف اليدوي
-manual_grade = assign_grade(mid_exam_score + lab_exam_score + activity_score + final_score)
-st.info(f"Manual classification based on Total Score: **{manual_grade}**")
+st.success('Model training and prediction completed successfully!')
