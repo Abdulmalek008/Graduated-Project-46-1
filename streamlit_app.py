@@ -2,10 +2,11 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
+import matplotlib.pyplot as plt
 
 st.title('🤖 Machine Learning Application for Predicting Students Final Grade')
 
-st.info('This app builds a machine learning model!')
+st.info('This app predicts students’ final grades (A, B, or C) using a machine learning model.')
 
 # تحميل البيانات
 with st.expander('Data'):
@@ -13,7 +14,7 @@ with st.expander('Data'):
     df = pd.read_csv('https://raw.githubusercontent.com/Abdulmalek008/Graduated-Project-46-1/refs/heads/master/Student_Info%202.csv')
     st.write(df)
 
-# إضافة التصنيف بناءً على المجموع الإجمالي
+# حساب المجموع وإضافة التصنيف
 def assign_grade(total):
     if total > 80:
         return 'A'
@@ -25,26 +26,31 @@ def assign_grade(total):
 df['Total'] = df[['Mid_Exam_Score', 'Lab_Exam_Score', 'Activity_Score', 'Final_Score']].sum(axis=1)
 df['Grade'] = df['Total'].apply(assign_grade)
 
-with st.expander('Processed Data'):
-    st.write('**Data with Total and Grade**')
-    st.write(df)
+# رسم بياني لتوزيع التصنيفات
+with st.expander('Data Visualization'):
+    st.write('**Grade Distribution**')
+    grade_counts = df['Grade'].value_counts()
+    fig, ax = plt.subplots()
+    ax.bar(grade_counts.index, grade_counts.values, color=['green', 'orange', 'red'])
+    ax.set_title('Distribution of Grades')
+    ax.set_xlabel('Grade')
+    ax.set_ylabel('Count')
+    st.pyplot(fig)
 
-# تحضير X و y للنموذج
+# إعداد البيانات للنموذج
 X = df.drop(['Grade', 'Level', 'Total'], axis=1)
 y = df['Grade']
 
-# تشفير المدخلات
+# تشفير البيانات
 X_encoded = pd.get_dummies(X, columns=['Student_ID', 'Gender'], drop_first=True)
-
-# تشفير المخرجات
 target_mapper = {'A': 0, 'B': 1, 'C': 2}
 y_encoded = y.map(target_mapper)
 
 # تدريب النموذج
-clf = RandomForestClassifier()
+clf = RandomForestClassifier(random_state=42)
 clf.fit(X_encoded, y_encoded)
 
-# إدخال بيانات طالب جديد
+# إدخال بيانات جديدة
 st.sidebar.header('Input features')
 student_ID = st.sidebar.selectbox('Student_ID', [f"S{str(i).zfill(3)}" for i in range(1, 151)])
 gender = st.sidebar.selectbox('Gender', ('Female', 'Male'))
@@ -54,11 +60,7 @@ lab_exam_score = st.sidebar.slider('Lab_Exam_Score', 0, 15, 10)
 activity_score = st.sidebar.slider('Activity_Score', 0, 25, 10)
 final_score = st.sidebar.slider('Final_Score', 0, 40, 20)
 
-# حساب المجموع والتصنيف اليدوي
-total_score = mid_exam_score + lab_exam_score + activity_score + final_score
-manual_grade = assign_grade(total_score)
-
-# إنشاء إدخال الطالب
+# تحضير بيانات الطالب الجديد
 input_data = pd.DataFrame({
     'Student_ID': [student_ID],
     'Gender': [gender],
@@ -69,7 +71,7 @@ input_data = pd.DataFrame({
     'Final_Score': [final_score]
 })
 
-# تشفير بيانات الطالب
+# تشفير بيانات الطالب الجديد
 input_encoded = pd.get_dummies(input_data, columns=['Student_ID', 'Gender'], drop_first=True)
 input_encoded = input_encoded.reindex(columns=X_encoded.columns, fill_value=0)
 
@@ -78,13 +80,39 @@ prediction = clf.predict(input_encoded)
 prediction_proba = clf.predict_proba(input_encoded)
 
 # عرض النتائج
-st.subheader('Predicted Grade')
 grades = {0: 'A', 1: 'B', 2: 'C'}
-st.write(f"Predicted grade by model: **{grades[prediction[0]]}**")
+predicted_grade = grades[prediction[0]]
 
-st.subheader('Prediction Probabilities')
-proba_df = pd.DataFrame(prediction_proba, columns=['A', 'B', 'C'])
-st.write(proba_df)
+st.subheader('Prediction Results')
 
-st.subheader('Manual Grade Classification')
-st.write(f"Manual grade based on Total ({total_score}): **{manual_grade}**")
+# عرض النتائج بتنسيق جميل
+st.dataframe(pd.DataFrame(prediction_proba, columns=['A', 'B', 'C']),
+             column_config={
+                 'A': st.column_config.ProgressColumn(
+                     'A',
+                     format='%f',
+                     width='medium',
+                     min_value=0,
+                     max_value=1
+                 ),
+                 'B': st.column_config.ProgressColumn(
+                     'B',
+                     format='%f',
+                     width='medium',
+                     min_value=0,
+                     max_value=1
+                 ),
+                 'C': st.column_config.ProgressColumn(
+                     'C',
+                     format='%f',
+                     width='medium',
+                     min_value=0,
+                     max_value=1
+                 ),
+             }, hide_index=True)
+
+st.success(f"The predicted grade is: **{predicted_grade}**")
+
+# عرض التصنيف اليدوي
+manual_grade = assign_grade(mid_exam_score + lab_exam_score + activity_score + final_score)
+st.info(f"Manual classification based on Total Score: **{manual_grade}**")
