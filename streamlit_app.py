@@ -92,10 +92,6 @@ else:
 with st.expander('📈 Prediction Results'):
     st.write('### Predicted Level:')
     st.success(f'The predicted grade based on the total score is: **{level}**')
-    
-    # عرض النتيجة النهائية من النموذج
-    prediction = model.predict(new_data)
-    st.write(f"Model Prediction: {prediction[0]}")
 
 # رسم بياني باستخدام st.scatter_chart
 with st.expander('📊 Total Score vs Level'):
