@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
@@ -31,27 +30,6 @@ with st.expander('📊 Dataset'):
     df['Level'] = df.apply(classify_level, axis=1)
     st.write('### Raw Data:')
     st.dataframe(df)
-
-# رسم بياني لعرض العلاقة بين Total Score و Level
-with st.expander('📈 Total Score vs Level'):
-    st.write('### Distribution of Total Score by Level:')
-    
-    # حساب المجموع الكلي للدرجات
-    df['Total_Score'] = df['Mid_Exam_Score'] + df['Lab_Exam_Score'] + df['Activity_Score'] + df['Final_Score']
-    
-    # رسم بياني باستخدام matplotlib
-    plt.figure(figsize=(10, 6))
-    for level in df['Level'].unique():
-        subset = df[df['Level'] == level]
-        plt.scatter(subset['Level'], subset['Total_Score'], label=level, alpha=0.7)
-
-    plt.title('Total Score vs Level')
-    plt.xlabel('Level')
-    plt.ylabel('Total Score')
-    plt.legend(title='Level')
-    
-    # عرض الرسم البياني في التطبيق
-    st.pyplot(plt)
 
 # تجهيز البيانات للتعلم الآلي
 with st.expander('⚙️ Data Preparation'):
@@ -111,10 +89,23 @@ else:
     level = 'C'
 
 # عرض التنبؤ
-
+with st.expander('📈 Prediction Results'):
     st.write('### Predicted Level:')
     st.success(f'The predicted grade based on the total score is: **{level}**')
     
     # عرض النتيجة النهائية من النموذج
     prediction = model.predict(new_data)
     st.write(f"Model Prediction: {prediction[0]}")
+
+# رسم بياني باستخدام st.scatter_chart
+with st.expander('📊 Total Score vs Level'):
+    st.write('### Distribution of Total Score by Level:')
+    
+    # حساب المجموع الكلي للدرجات
+    df['Total_Score'] = df['Mid_Exam_Score'] + df['Lab_Exam_Score'] + df['Activity_Score'] + df['Final_Score']
+    
+    # إعداد البيانات للرسم البياني
+    scatter_data = df[['Total_Score', 'Level']]
+    
+    # رسم بياني باستخدام st.scatter_chart
+    st.scatter_chart(data=scatter_data, x='Total_Score', y='Level')
