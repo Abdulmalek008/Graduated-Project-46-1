@@ -20,7 +20,7 @@ with st.expander('📊 Dataset'):
     # تصنيف الطلاب بناءً على الدرجات التفصيلية
     def classify_level(row):
         total_score = row['Mid_Exam_Score'] + row['Lab_Exam_Score'] + row['Activity_Score'] + row['Final_Score']
-        if total_score > 80:
+        if total_score >= 80:  # تعديل هنا
             return 'A'
         elif total_score >= 60:
             return 'B'
@@ -81,7 +81,7 @@ total_score = attendance_score + mid_exam_score + lab_exam_score + activity_scor
 st.write(f"Total Score: {total_score}")
 
 # تصنيف الطالب بناءً على المجموع الكلي
-if total_score > 80:
+if total_score >= 80:
     level = 'A'
 elif total_score >= 60:
     level = 'B'
