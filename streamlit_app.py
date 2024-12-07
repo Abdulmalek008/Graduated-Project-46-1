@@ -111,7 +111,7 @@ else:
     level = 'C'
 
 # عرض التنبؤ
-with st.expander('📈 Prediction Results'):
+
     st.write('### Predicted Level:')
     st.success(f'The predicted grade based on the total score is: **{level}**')
     
