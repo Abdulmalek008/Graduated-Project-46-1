@@ -36,6 +36,9 @@ with st.sidebar:
     activity_score = st.slider('Activity_Score', 0, 25, 10)
     final_score = st.slider('Final_Score', 0, 40, 20)
 
+    # حساب مجموع الدرجات
+    total_score = mid_exam_score + lab_exam_score + activity_score + final_score
+
     # إنشاء بيانات الطالب المدخلة
     data = {
         'Student_ID': student_ID,
@@ -45,21 +48,22 @@ with st.sidebar:
         'Lab_Exam_Score': lab_exam_score,
         'Activity_Score': activity_score,
         'Final_Score': final_score,
+        'Total': total_score,
     }
     input_df = pd.DataFrame(data, index=[0])
     input_student = pd.concat([input_df, X_raw], axis=0)
 
-# دالة لتصنيف الدرجات النهائية
-def assign_grade(score):
-    if score > 80:
+# دالة لتصنيف المجموع (Total)
+def assign_grade(total):
+    if total > 80:
         return 'A'
-    elif 60 <= score <= 80:
+    elif 60 <= total <= 80:
         return 'B'
     else:
         return 'C'
 
-# تصنيف الدرجة النهائية للطالب المدخل
-input_df['Grade'] = input_df['Final_Score'].apply(assign_grade)
+# تصنيف الطالب بناءً على `Total`
+input_df['Grade'] = input_df['Total'].apply(assign_grade)
 
 # تحويل البيانات إلى صيغة يمكن استخدامها مع النموذج
 encode = ['Student_ID', 'Gender']
@@ -103,7 +107,7 @@ st.dataframe(
 student_level = np.array(['A', 'B', 'C'])
 st.success(f"Predicted Level (from model): {student_level[prediction][0]}")
 
-# عرض التصنيف بناءً على الدرجة النهائية
+# عرض التصنيف بناءً على المجموع
 st.subheader('Manual Grade Classification')
 manual_grade = input_df['Grade'].iloc[0]
-st.info(f"The grade based on the final score is: {manual_grade}")
+st.info(f"The grade based on the total score ({total_score}) is: {manual_grade}")
