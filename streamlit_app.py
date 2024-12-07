@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
@@ -40,12 +39,16 @@ with st.expander('📈 Total Score vs Level'):
     # حساب المجموع الكلي للدرجات
     df['Total_Score'] = df['Mid_Exam_Score'] + df['Lab_Exam_Score'] + df['Activity_Score'] + df['Final_Score']
     
-    # رسم بياني باستخدام seaborn
+    # رسم بياني باستخدام matplotlib
     plt.figure(figsize=(10, 6))
-    sns.boxplot(x='Level', y='Total_Score', data=df, palette='Set2')
+    for level in df['Level'].unique():
+        subset = df[df['Level'] == level]
+        plt.scatter(subset['Level'], subset['Total_Score'], label=level, alpha=0.7)
+
     plt.title('Total Score vs Level')
     plt.xlabel('Level')
     plt.ylabel('Total Score')
+    plt.legend(title='Level')
     
     # عرض الرسم البياني في التطبيق
     st.pyplot(plt)
@@ -92,10 +95,8 @@ new_data = pd.DataFrame({
     'Gender_Male': [1 if gender == 'Male' else 0]
 })
 
-# ضبط الأعمدة المفقودة
-for col in X.columns:
-    if col not in new_data:
-        new_data[col] = 0
+# التأكد من أن الأعمدة في new_data تتطابق مع الأعمدة في X_train
+new_data = new_data.reindex(columns=X.columns, fill_value=0)
 
 # حساب مجموع الدرجات للتأكد من التنبؤ
 total_score = attendance_score + mid_exam_score + lab_exam_score + activity_score + final_score
