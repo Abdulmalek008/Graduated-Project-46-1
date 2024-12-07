@@ -85,7 +85,8 @@ prediction_proba = model.predict_proba(new_data)
 # عرض التنبؤ
 with st.expander('📈 Prediction Results'):
     st.write('### Predicted Level:')
-    st.success(prediction[0])
+    st.success(f'The predicted grade is: **{prediction[0]}**')
+    
     st.write('### Prediction Probability:')
     proba_df = pd.DataFrame(prediction_proba, columns=model.classes_)
     st.bar_chart(proba_df.T)
