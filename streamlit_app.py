@@ -78,21 +78,23 @@ for col in X.columns:
     if col not in new_data:
         new_data[col] = 0
 
-# التنبؤ
-prediction = model.predict(new_data)
-prediction_proba = model.predict_proba(new_data)
-
 # حساب مجموع الدرجات للتأكد من التنبؤ
 total_score = attendance_score + mid_exam_score + lab_exam_score + activity_score + final_score
 st.write(f"Total Score: {total_score}")
 
+# تصنيف الطالب بناءً على المجموع الكلي
+if total_score > 80:
+    level = 'A'
+elif total_score >= 60:
+    level = 'B'
+else:
+    level = 'C'
+
 # عرض التنبؤ
 with st.expander('📈 Prediction Results'):
     st.write('### Predicted Level:')
-    st.success(f'The predicted grade is: **{prediction[0]}**')
+    st.success(f'The predicted grade based on the total score is: **{level}**')
     
-    st.write('### Prediction Probability:')
-    proba_df = pd.DataFrame(prediction_proba, columns=model.classes_)
-    st.bar_chart(proba_df.T)
-
-st.success('Model training and prediction completed successfully!')
+    # عرض النتيجة النهائية
+    prediction = model.predict(new_data)
+    st.write(f"Model Prediction: {prediction[0]}")
