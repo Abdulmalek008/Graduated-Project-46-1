@@ -82,6 +82,10 @@ for col in X.columns:
 prediction = model.predict(new_data)
 prediction_proba = model.predict_proba(new_data)
 
+# حساب مجموع الدرجات للتأكد من التنبؤ
+total_score = attendance_score + mid_exam_score + lab_exam_score + activity_score + final_score
+st.write(f"Total Score: {total_score}")
+
 # عرض التنبؤ
 with st.expander('📈 Prediction Results'):
     st.write('### Predicted Level:')
