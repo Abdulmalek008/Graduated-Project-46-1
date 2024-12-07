@@ -33,8 +33,13 @@ with st.expander('📊 Dataset'):
 # تجهيز البيانات للتعلم الآلي
 with st.expander('⚙️ Data Preparation'):
     st.write('### Features and Target:')
-    X = df.drop(columns=['Level', 'Total', 'Student_ID'])
+    
+    # ترميز العمود النصي (Gender)
+    df_encoded = pd.get_dummies(df, columns=['Gender'], drop_first=True)
+    
+    X = df_encoded.drop(columns=['Level', 'Total', 'Student_ID'])
     y = df['Level']
+    
     st.write('#### Features (X):')
     st.dataframe(X)
     st.write('#### Target (y):')
@@ -59,25 +64,22 @@ with st.sidebar:
 
 # تجهيز البيانات للتنبؤ
 new_data = pd.DataFrame({
-    'Gender': [gender],
     'Attendance_Score': [attendance_score],
     'Mid_Exam_Score': [mid_exam_score],
     'Lab_Exam_Score': [lab_exam_score],
     'Activity_Score': [activity_score],
     'Final_Score': [final_score],
+    'Gender_Male': [1 if gender == 'Male' else 0]
 })
 
-# تحويل البيانات النصية إلى أرقام
-new_data_encoded = pd.get_dummies(new_data, drop_first=True)
-
-# إضافة الأعمدة المفقودة
+# ضبط الأعمدة المفقودة
 for col in X.columns:
-    if col not in new_data_encoded:
-        new_data_encoded[col] = 0
+    if col not in new_data:
+        new_data[col] = 0
 
 # التنبؤ
-prediction = model.predict(new_data_encoded)
-prediction_proba = model.predict_proba(new_data_encoded)
+prediction = model.predict(new_data)
+prediction_proba = model.predict_proba(new_data)
 
 # عرض التنبؤ
 with st.expander('📈 Prediction Results'):
