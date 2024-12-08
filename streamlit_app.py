@@ -73,13 +73,22 @@ new_data = pd.DataFrame({
 # التأكد من تطابق الأعمدة مع النموذج
 new_data = new_data.reindex(columns=X.columns, fill_value=0)
 
-# تنبؤ النموذج
-predicted_level = model.predict(new_data)[0]
+# حساب المجموع الكلي
+total_score = mid_exam_score + lab_exam_score + activity_score + final_exam_score
+st.write(f"Total Score: {total_score}")
 
-# عرض النتائج
+# تصنيف الطالب بناءً على المجموع الكلي
+if total_score >= 80:
+    level = 'A'
+elif total_score >= 60:
+    level = 'B'
+else:
+    level = 'C'
+
+# عرض التنبؤ
 with st.expander('📈 Prediction Results'):
     st.write('### Predicted Grade:')
-    st.success(f'The predicted grade for the student is: **{predicted_level}**')
+    st.success(f'The predicted grade for the student is: **{level}**')
 
 # رسم بياني يوضح توزيع المستويات
 with st.expander('📊 Grade Distribution by Total Score'):
