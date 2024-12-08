@@ -87,7 +87,37 @@ prob_A = probabilities[0][model.classes_ == 'A'][0] * 100
 prob_B = probabilities[0][model.classes_ == 'B'][0] * 100
 prob_C = probabilities[0][model.classes_ == 'C'][0] * 100
 
-# عرض النتائج
+# تصنيف الطالب بناءً على المجموع الكلي
+if total_score >= 80:
+    level = 'A'
+elif total_score >= 60:
+    level = 'B'
+else:
+    level = 'C'
+
+# إنشاء جدول يعرض البيانات المدخلة والتنبؤ
+input_data = {
+    'Gender': [gender],
+    'Attendance Score': [attendance_score],
+    'Mid Exam Score': [mid_exam_score],
+    'Lab Exam Score': [lab_exam_score],
+    'Activity Score': [activity_score],
+    'Final Exam Score': [final_exam_score],
+    'Total Score': [total_score],
+    'Predicted Level': [level],
+    'Probability A (%)': [prob_A],
+    'Probability B (%)': [prob_B],
+    'Probability C (%)': [prob_C]
+}
+
+input_df = pd.DataFrame(input_data)
+
+# عرض الجدول للمستخدم
+with st.expander('📊 Prediction Table'):
+    st.write('### Entered Data and Predicted Grade:')
+    st.dataframe(input_df)
+
+# عرض التنبؤ بالاحتمالات
 with st.expander('📈 Prediction Results'):
     st.write('### Predicted Grade Probability:')
     st.success(f'The predicted grade probabilities are:')
