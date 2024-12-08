@@ -79,18 +79,21 @@ new_data = new_data.reindex(columns=X.columns, fill_value=0)
 total_score = attendance_score + mid_exam_score + lab_exam_score + activity_score + final_exam_score
 st.write(f"Total Score: {total_score}")
 
-# تصنيف الطالب بناءً على المجموع الكلي
-if total_score >= 80:
-    level = 'A'
-elif total_score >= 60:
-    level = 'B'
-else:
-    level = 'C'
+# التنبؤ بالاحتمالات لكل مستوى
+probabilities = model.predict_proba(new_data)
 
-# عرض التنبؤ
+# استخراج الاحتمالات لكل من A, B, C
+prob_A = probabilities[0][model.classes_ == 'A'][0] * 100
+prob_B = probabilities[0][model.classes_ == 'B'][0] * 100
+prob_C = probabilities[0][model.classes_ == 'C'][0] * 100
+
+# عرض النتائج
 with st.expander('📈 Prediction Results'):
-    st.write('### Predicted Grade:')
-    st.success(f'The predicted grade for the student is: **{level}**')
+    st.write('### Predicted Grade Probability:')
+    st.success(f'The predicted grade probabilities are:')
+    st.write(f"**A**: {prob_A:.2f}%")
+    st.write(f"**B**: {prob_B:.2f}%")
+    st.write(f"**C**: {prob_C:.2f}%")
 
 # رسم بياني يوضح توزيع المستويات
 with st.expander('📊 Grade Distribution by Total Score'):
