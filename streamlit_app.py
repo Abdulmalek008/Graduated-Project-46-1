@@ -19,7 +19,7 @@ with st.expander('📊 Dataset'):
     
     # إضافة عمود الدرجات النهائية
     def calculate_level(row):
-        total_score = row['Mid_Exam_Score'] + row['Lab_Exam_Score'] + row['Activity_Score'] + row['Final_Score']
+        total_score = row['Attendance_Score'] + row['Mid_Exam_Score'] + row['Lab_Exam_Score'] + row['Activity_Score'] + row['Final_Score']
         if total_score >= 80:
             return 'A'
         elif total_score >= 60:
@@ -56,6 +56,7 @@ model.fit(X_train, y_train)
 with st.sidebar:
     st.header('🔍 Enter Student Data:')
     gender = st.selectbox('Gender', ['Male', 'Female'])
+    attendance_score = st.slider('Attendance Score', 0, 5, 3)
     mid_exam_score = st.slider('Mid Exam Score', 0, 15, 10)
     lab_exam_score = st.slider('Lab Exam Score', 0, 15, 10)
     activity_score = st.slider('Activity Score', 0, 25, 15)
@@ -63,6 +64,7 @@ with st.sidebar:
 
 # تجهيز بيانات المستخدم
 new_data = pd.DataFrame({
+    'Attendance_Score': [attendance_score],
     'Mid_Exam_Score': [mid_exam_score],
     'Lab_Exam_Score': [lab_exam_score],
     'Activity_Score': [activity_score],
@@ -74,7 +76,7 @@ new_data = pd.DataFrame({
 new_data = new_data.reindex(columns=X.columns, fill_value=0)
 
 # حساب المجموع الكلي
-total_score = mid_exam_score + lab_exam_score + activity_score + final_exam_score
+total_score = attendance_score + mid_exam_score + lab_exam_score + activity_score + final_exam_score
 st.write(f"Total Score: {total_score}")
 
 # تصنيف الطالب بناءً على المجموع الكلي
@@ -92,7 +94,7 @@ with st.expander('📈 Prediction Results'):
 
 # رسم بياني يوضح توزيع المستويات
 with st.expander('📊 Grade Distribution by Total Score'):
-    df['Total_Score'] = df['Mid_Exam_Score'] + df['Lab_Exam_Score'] + df['Activity_Score'] + df['Final_Score']
+    df['Total_Score'] = df['Attendance_Score'] + df['Mid_Exam_Score'] + df['Lab_Exam_Score'] + df['Activity_Score'] + df['Final_Score']
     st.write('### Distribution of Total Scores by Grade:')
     scatter_data = df[['Total_Score', 'Level']]
     st.scatter_chart(scatter_data, x='Total_Score', y='Level')
