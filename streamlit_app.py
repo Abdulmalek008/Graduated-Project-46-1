@@ -5,45 +5,44 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
 # عنوان التطبيق
-st.title('🎓 Student Final Grade Prediction')
+st.title('🎓 Student Grade Prediction App')
 
-st.info('This app predicts the student’s final grade (A, B, C) based on their scores.')
+st.info('This app predicts the final grade (A, B, C) of students based on their performance scores.')
 
 # تحميل البيانات
 with st.expander('📊 Dataset'):
     # قراءة البيانات
     df = pd.read_csv('https://raw.githubusercontent.com/Abdulmalek008/Graduated-Project-46-1/refs/heads/master/Student_Info%202.csv')
     
-    # حذف عمود "Total"
+    # حذف العمود غير المستخدم
     df.drop(columns=['Total'], inplace=True)
     
-    # تصنيف الطلاب بناءً على الدرجات التفصيلية
-    def classify_level(row):
+    # إضافة عمود الدرجات النهائية
+    def calculate_level(row):
         total_score = row['Mid_Exam_Score'] + row['Lab_Exam_Score'] + row['Activity_Score'] + row['Final_Score']
-        if total_score >= 80:  
+        if total_score >= 80:
             return 'A'
         elif total_score >= 60:
             return 'B'
         else:
             return 'C'
 
-    df['Level'] = df.apply(classify_level, axis=1)
+    df['Level'] = df.apply(calculate_level, axis=1)
     st.write('### Raw Data:')
     st.dataframe(df)
 
 # تجهيز البيانات للتعلم الآلي
 with st.expander('⚙️ Data Preparation'):
-    st.write('### Features and Target:')
-    
-    # ترميز العمود النصي (Gender)
+    # ترميز عمود الجنس
     df_encoded = pd.get_dummies(df, columns=['Gender'], drop_first=True)
     
+    # تحديد الميزات والهدف
     X = df_encoded.drop(columns=['Level', 'Student_ID'])
     y = df['Level']
     
-    st.write('#### Features (X):')
+    st.write('### Features (X):')
     st.dataframe(X)
-    st.write('#### Target (y):')
+    st.write('### Target (y):')
     st.dataframe(y)
 
 # تقسيم البيانات
@@ -53,50 +52,38 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_
 model = RandomForestClassifier(random_state=42)
 model.fit(X_train, y_train)
 
-# واجهة المستخدم لتنبؤ درجة طالب جديد
+# واجهة المستخدم
 with st.sidebar:
-    st.header('🔍 Input Features')
+    st.header('🔍 Enter Student Data:')
     gender = st.selectbox('Gender', ['Male', 'Female'])
-    attendance_score = st.slider('Attendance Score', 1, 5, 3)
     mid_exam_score = st.slider('Mid Exam Score', 0, 15, 10)
     lab_exam_score = st.slider('Lab Exam Score', 0, 15, 10)
     activity_score = st.slider('Activity Score', 0, 25, 15)
-    final_score = st.slider('Final Exam Score', 0, 40, 20)
+    final_exam_score = st.slider('Final Exam Score', 0, 40, 20)
 
-# تجهيز البيانات للتنبؤ
+# تجهيز بيانات المستخدم
 new_data = pd.DataFrame({
-    'Attendance_Score': [attendance_score],
     'Mid_Exam_Score': [mid_exam_score],
     'Lab_Exam_Score': [lab_exam_score],
     'Activity_Score': [activity_score],
-    'Final_Score': [final_score],
+    'Final_Score': [final_exam_score],
     'Gender_Male': [1 if gender == 'Male' else 0]
 })
 
-# التأكد من أن الأعمدة في new_data تتطابق مع الأعمدة في X_train
+# التأكد من تطابق الأعمدة مع النموذج
 new_data = new_data.reindex(columns=X.columns, fill_value=0)
 
-# حساب مجموع الدرجات للتأكد من التنبؤ
-total_score = attendance_score + mid_exam_score + lab_exam_score + activity_score + final_score
-st.write(f"Total Score: {total_score}")
-
-# التنبؤ بالمستوى باستخدام النموذج
+# تنبؤ النموذج
 predicted_level = model.predict(new_data)[0]
 
-# عرض التنبؤ في واجهة المستخدم
+# عرض النتائج
 with st.expander('📈 Prediction Results'):
-    st.write('### Predicted Level:')
-    st.success(f'The predicted grade based on the machine learning model is: **{predicted_level}**')
+    st.write('### Predicted Grade:')
+    st.success(f'The predicted grade for the student is: **{predicted_level}**')
 
-# رسم بياني باستخدام st.scatter_chart
-with st.expander('📊 Total Score vs Level'):
-    st.write('### Distribution of Total Score by Level:')
-    
-    # حساب المجموع الكلي للدرجات
+# رسم بياني يوضح توزيع المستويات
+with st.expander('📊 Grade Distribution by Total Score'):
     df['Total_Score'] = df['Mid_Exam_Score'] + df['Lab_Exam_Score'] + df['Activity_Score'] + df['Final_Score']
-    
-    # إعداد البيانات للرسم البياني
+    st.write('### Distribution of Total Scores by Grade:')
     scatter_data = df[['Total_Score', 'Level']]
-    
-    # رسم بياني باستخدام st.scatter_chart
-    st.scatter_chart(data=scatter_data, x='Total_Score', y='Level')
+    st.scatter_chart(scatter_data, x='Total_Score', y='Level')
