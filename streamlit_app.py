@@ -20,7 +20,7 @@ with st.expander('📊 Dataset'):
     # تصنيف الطلاب بناءً على الدرجات التفصيلية
     def classify_level(row):
         total_score = row['Mid_Exam_Score'] + row['Lab_Exam_Score'] + row['Activity_Score'] + row['Final_Score']
-        if total_score >= 80:  # تعديل هنا
+        if total_score >= 80:  
             return 'A'
         elif total_score >= 60:
             return 'B'
@@ -80,18 +80,13 @@ new_data = new_data.reindex(columns=X.columns, fill_value=0)
 total_score = attendance_score + mid_exam_score + lab_exam_score + activity_score + final_score
 st.write(f"Total Score: {total_score}")
 
-# تصنيف الطالب بناءً على المجموع الكلي
-if total_score >= 80:
-    level = 'A'
-elif total_score >= 60:
-    level = 'B'
-else:
-    level = 'C'
+# التنبؤ بالمستوى باستخدام النموذج
+predicted_level = model.predict(new_data)[0]
 
-# عرض التنبؤ
+# عرض التنبؤ في واجهة المستخدم
 with st.expander('📈 Prediction Results'):
     st.write('### Predicted Level:')
-    st.success(f'The predicted grade based on the total score is: **{level}**')
+    st.success(f'The predicted grade based on the machine learning model is: **{predicted_level}**')
 
 # رسم بياني باستخدام st.scatter_chart
 with st.expander('📊 Total Score vs Level'):
