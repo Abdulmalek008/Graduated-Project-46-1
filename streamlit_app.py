@@ -4,6 +4,39 @@ import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
+# تخصيص الألوان والتصميم باستخدام CSS
+st.markdown("""
+    <style>
+        body {
+            background-color: black;
+            color: white;
+        }
+        .sidebar .sidebar-content {
+            background-color: #333333;
+            color: white;
+        }
+        .stButton>button {
+            background-color: #FF5733;
+            color: white;
+        }
+        .stDataFrame, .stTable {
+            color: white;
+            background-color: #222222;
+        }
+        .stExpanderHeader {
+            background-color: #444444;
+            color: white;
+        }
+        .stTextInput, .stSlider, .stSelectbox {
+            background-color: #555555;
+            color: white;
+        }
+        .stMarkdown, .stSuccess {
+            color: #80FF00;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 # عنوان التطبيق
 st.title('🎓 Student Grade Prediction App')
 
