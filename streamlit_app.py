@@ -1,14 +1,14 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 # عنوان التطبيق
-st.title('🎓 Student Grade Prediction App')
+st.title('🎓 Student Final Exam Score Prediction App')
 
-st.info('This app predicts the final grade (A, B, C) of students and estimates their Final Exam Score.')
+st.info('This app predicts the final exam score of students based on their performance scores.')
 
 # تحميل البيانات
 with st.expander('📊 Dataset'):
@@ -18,41 +18,33 @@ with st.expander('📊 Dataset'):
     # حذف العمود غير المستخدم
     df.drop(columns=['Total'], inplace=True)
     
-    # إضافة عمود الدرجات النهائية
-    def calculate_level(row):
-        total_score = row['Attendance_Score'] + row['Mid_Exam_Score'] + row['Lab_Exam_Score'] + row['Activity_Score']
-        if total_score >= 80:
-            return 'A'
-        elif total_score >= 60:
-            return 'B'
-        else:
-            return 'C'
-
-    df['Level'] = df.apply(calculate_level, axis=1)
+    # معالجة البيانات المفقودة إن وجدت
+    df.fillna(0, inplace=True)
+    
+    # عرض البيانات الأولية
     st.write('### Raw Data:')
     st.dataframe(df)
 
 # تحليل البيانات
 with st.expander('📊 Data Analysis'):
     st.write('### Correlation Matrix:')
-    # حذف الأعمدة غير الرقمية
-    numeric_df = df.select_dtypes(include=[np.number])
-    # عرض مصفوفة الارتباط
-    st.write(numeric_df.corr())
+    st.write(df.corr())
     
     st.write('### Pairplot (relationship between features):')
-    st.line_chart(numeric_df)
+    st.line_chart(df[['Attendance_Score', 'Mid_Exam_Score', 'Lab_Exam_Score', 'Activity_Score', 'Final_Score']])
 
 # تجهيز البيانات للتعلم الآلي
 with st.expander('⚙️ Data Preparation'):
-    st.write('### Features and Target:')
-    
     # ترميز عمود الجنس
     df_encoded = pd.get_dummies(df, columns=['Gender'], drop_first=True)
     
     # تحديد الميزات والهدف
-    X = df_encoded.drop(columns=['Level', 'Student_ID', 'Final_Score'])
+    X = df_encoded.drop(columns=['Final_Score', 'Student_ID'])
     y = df['Final_Score']
+    
+    # التحقق من القيم غير الرقمية
+    X = X.apply(pd.to_numeric, errors='coerce').fillna(0)
+    y = pd.to_numeric(y, errors='coerce').fillna(0)
     
     st.write('### Features (X):')
     st.dataframe(X)
@@ -62,9 +54,20 @@ with st.expander('⚙️ Data Preparation'):
 # تقسيم البيانات
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
-# تدريب النموذج لتنبؤ درجة الامتحان النهائي
-final_score_model = RandomForestClassifier(random_state=42)
-final_score_model.fit(X_train, y_train)
+# تدريب النموذج
+model = RandomForestRegressor(random_state=42)
+model.fit(X_train, y_train)
+
+# تقييم النموذج
+y_pred = model.predict(X_test)
+mae = mean_absolute_error(y_test, y_pred)
+mse = mean_squared_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+
+with st.expander('📊 Model Evaluation'):
+    st.write(f"**Mean Absolute Error (MAE):** {mae:.2f}")
+    st.write(f"**Mean Squared Error (MSE):** {mse:.2f}")
+    st.write(f"**R-squared (R²):** {r2:.2f}")
 
 # واجهة المستخدم
 with st.sidebar:
@@ -87,42 +90,15 @@ new_data = pd.DataFrame({
 # التأكد من تطابق الأعمدة مع النموذج
 new_data = new_data.reindex(columns=X.columns, fill_value=0)
 
-# تنبؤ درجة الامتحان النهائي
-predicted_final_score = final_score_model.predict(new_data)[0]
+# التنبؤ بالدرجة النهائية
+predicted_final_score = model.predict(new_data)[0]
 
-# حساب المجموع الكلي
-total_score = attendance_score + mid_exam_score + lab_exam_score + activity_score + predicted_final_score
-
-# التنبؤ بالمستوى بناءً على المجموع الكلي
-if total_score >= 80:
-    level = 'A'
-elif total_score >= 60:
-    level = 'B'
-else:
-    level = 'C'
-
-# إنشاء جدول يعرض البيانات المدخلة والتنبؤ
-input_data = {
-    'Gender': [gender],
-    'Attendance Score': [attendance_score],
-    'Mid Exam Score': [mid_exam_score],
-    'Lab Exam Score': [lab_exam_score],
-    'Activity Score': [activity_score],
-    'Predicted Final Score': [predicted_final_score],
-    'Total Score': [total_score],
-    'Predicted Level': [level]
-}
-
-input_df = pd.DataFrame(input_data)
-
-# عرض الجدول للمستخدم
-with st.expander('📊 Prediction Table'):
-    st.write('### Entered Data and Predicted Results:')
-    st.dataframe(input_df)
-
-# عرض النتيجة النهائية
+# عرض التنبؤ
 with st.expander('📈 Prediction Results'):
     st.write('### Predicted Final Exam Score:')
     st.success(f'The predicted final exam score is: **{predicted_final_score:.2f}**')
-    st.write('### Predicted Grade:')
-    st.success(f'The predicted grade based on the total score is: **{level}**')
+
+# عرض توزيع التوقعات
+with st.expander('📊 Actual vs Predicted Final Scores'):
+    scatter_data = pd.DataFrame({'Actual Final Score': y_test, 'Predicted Final Score': y_pred})
+    st.line_chart(scatter_data)
