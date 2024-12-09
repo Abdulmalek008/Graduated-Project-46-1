@@ -17,6 +17,9 @@ with st.expander('📊 Dataset'):
     # حذف العمود غير المستخدم
     df.drop(columns=['Total'], inplace=True)
     
+    # معالجة البيانات المفقودة إن وجدت
+    df.fillna(0, inplace=True)
+    
     # عرض البيانات الأولية
     st.write('### Raw Data:')
     st.dataframe(df)
@@ -29,6 +32,10 @@ with st.expander('⚙️ Data Preparation'):
     # تحديد الميزات والهدف
     X = df_encoded.drop(columns=['Final_Score', 'Student_ID'])
     y = df['Final_Score']
+    
+    # التحقق من القيم غير الرقمية
+    X = X.apply(pd.to_numeric, errors='coerce').fillna(0)
+    y = pd.to_numeric(y, errors='coerce').fillna(0)
     
     st.write('### Features (X):')
     st.dataframe(X)
