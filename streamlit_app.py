@@ -64,15 +64,24 @@ input_row = df_encoded.iloc[0:1]
 level_mapper = {'A': 0, 'B': 1, 'C': 2}
 y_level_encoded = y_level.map(level_mapper)
 
-# تدريب النماذج
-X_train_level, X_test_level, y_train_level, y_test_level = train_test_split(X_raw, y_level_encoded, test_size=0.2, random_state=42)
-X_train_score, X_test_score, y_train_score, y_test_score = train_test_split(X_raw, y_score, test_size=0.2, random_state=42)
+# التحقق من القيم المفقودة
+X_encoded = X_encoded.fillna(0)
+input_row = input_row.fillna(0)
 
-# نموذج التنبؤ بالمستوى
+# التأكد من تطابق الأعمدة
+X_encoded, input_row = X_encoded.align(input_row, join="inner", axis=1)
+
+# تحويل القيم المستهدفة إلى أرقام صحيحة
+y_level_encoded = y_level_encoded.astype(int)
+
+# تقسيم البيانات
+X_train_level, X_test_level, y_train_level, y_test_level = train_test_split(X_encoded, y_level_encoded, test_size=0.2, random_state=42)
+X_train_score, X_test_score, y_train_score, y_test_score = train_test_split(X_encoded, y_score, test_size=0.2, random_state=42)
+
+# تدريب النماذج
 level_model = RandomForestClassifier(random_state=42)
 level_model.fit(X_train_level, y_train_level)
 
-# نموذج التنبؤ بالدرجة النهائية
 score_model = RandomForestRegressor(random_state=42)
 score_model.fit(X_train_score, y_train_score)
 
