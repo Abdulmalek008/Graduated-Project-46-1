@@ -70,7 +70,7 @@ new_data = pd.DataFrame({
     'Mid_Exam_Score': [mid_exam_score],
     'Lab_Exam_Score': [lab_exam_score],
     'Activity_Score': [activity_score],
-    'Final_Score': [final_exam_score],
+  #  'Final_Score': [final_exam_score],
     'Gender_Male': [1 if gender == 'Male' else 0]
 })
 
@@ -78,7 +78,7 @@ new_data = pd.DataFrame({
 new_data = new_data.reindex(columns=X.columns, fill_value=0)
 
 # حساب المجموع الكلي
-total_score = attendance_score + mid_exam_score + lab_exam_score + activity_score + final_exam_score
+total_score = attendance_score + mid_exam_score + lab_exam_score + activity_score #+ final_exam_score
 st.write(f"Total Score: {total_score}")
 
 # التنبؤ بالاحتمالات لكل مستوى
