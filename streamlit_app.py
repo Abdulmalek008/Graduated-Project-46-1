@@ -23,12 +23,19 @@ with st.expander('📊 Upload Student Data'):
         st.write('### Raw Data:')
         st.dataframe(df)
 
-# عرض الرسم البياني للتوزيع
+        # عرض الأعمدة المتاحة
+        st.write('### Available Columns in the Data:')
+        st.write(df.columns)
+
+# إذا كانت الأعمدة المطلوبة موجودة، نقوم برسم المخطط
 with st.expander('📊 Visualize Data Distribution'):
-    st.write('### Distribution of Scores:')
-    fig, ax = plt.subplots(figsize=(10, 6))
-    sns.boxplot(data=df[['Attendance_Score', 'Mid_Exam_Score', 'Lab_Exam_Score', 'Activity_Score', 'Final_Score']], ax=ax)
-    st.pyplot(fig)
+    if all(col in df.columns for col in ['Attendance_Score', 'Mid_Exam_Score', 'Lab_Exam_Score', 'Activity_Score', 'Final_Score']):
+        st.write('### Distribution of Scores:')
+        fig, ax = plt.subplots(figsize=(10, 6))
+        sns.boxplot(data=df[['Attendance_Score', 'Mid_Exam_Score', 'Lab_Exam_Score', 'Activity_Score', 'Final_Score']], ax=ax)
+        st.pyplot(fig)
+    else:
+        st.warning('The required columns for plotting (Attendance_Score, Mid_Exam_Score, Lab_Exam_Score, Activity_Score, Final_Score) are not found in the data.')
 
 # تجهيز البيانات
 with st.expander('⚙️ Data Preparation'):
