@@ -1,8 +1,9 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 
 # عنوان التطبيق
@@ -36,9 +37,14 @@ with st.expander('⚙️ Data Preparation'):
 # تقسيم البيانات إلى تدريب واختبار
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
-# استخدام LinearRegression بدلاً من RandomForest
-model = LinearRegression()
-model.fit(X_train, y_train)
+# تحسين البيانات باستخدام StandardScaler
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# استخدام RandomForestRegressor
+model = RandomForestRegressor(n_estimators=100, random_state=42)
+model.fit(X_train_scaled, y_train)
 
 # واجهة المستخدم
 with st.sidebar:
@@ -49,15 +55,11 @@ with st.sidebar:
     activity_score = st.slider('Activity Score', 0, 25, 15)
 
 # تجهيز بيانات المستخدم للتنبؤ
-new_data = pd.DataFrame({
-    'Attendance_Score': [attendance_score],
-    'Mid_Exam_Score': [mid_exam_score],
-    'Lab_Exam_Score': [lab_exam_score],
-    'Activity_Score': [activity_score]
-})
+new_data = np.array([[attendance_score, mid_exam_score, lab_exam_score, activity_score]])
+new_data_scaled = scaler.transform(new_data)
 
 # التنبؤ بدرجة الفاينل سكور
-predicted_final_score = model.predict(new_data)[0]
+predicted_final_score = model.predict(new_data_scaled)[0]
 
 # التأكد من أن الفاينل سكور لا يتجاوز 40 درجة
 predicted_final_score = min(predicted_final_score, 40)
