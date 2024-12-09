@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+import numpy as np
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 
@@ -13,36 +14,32 @@ st.info('This app predicts the final exam score of students based on their perfo
 with st.expander('📊 Dataset'):
     df = pd.read_csv('https://raw.githubusercontent.com/Abdulmalek008/Graduated-Project-46-1/refs/heads/master/Student_Info%202.csv')
     
+    # حذف العمود "Total" غير المستخدم
+    df.drop(columns=['Total'], inplace=True)
+    
+    # التحقق من القيم المفقودة في Final_Score وحذف الصفوف المفقودة
+    df.dropna(subset=['Final_Score'], inplace=True)
+    
     # عرض البيانات
     st.write('### Raw Data:')
     st.dataframe(df)
 
-# تحديد الفئات بناءً على مجموع الدرجات
-def grade_category(total_score):
-    if total_score >= 80:
-        return 'A'
-    elif total_score >= 60:
-        return 'B'
-    else:
-        return 'C'
-
-# تجهيز البيانات
-df['Total'] = df['Attendance_Score'] + df['Mid_Exam_Score'] + df['Lab_Exam_Score'] + df['Activity_Score']
-df['Grade'] = df['Total'].apply(grade_category)
-
-X = df[['Attendance_Score', 'Mid_Exam_Score', 'Lab_Exam_Score', 'Activity_Score']]
-y = df['Grade']
+# تجهيز البيانات للتعلم الآلي
+with st.expander('⚙️ Data Preparation'):
+    X = df[['Attendance_Score', 'Mid_Exam_Score', 'Lab_Exam_Score', 'Activity_Score']]
+    y = df['Final_Score']  # الهدف هو الفاينل سكور
+    
+    st.write('### Features (X):')
+    st.dataframe(X)
+    st.write('### Target (y):')
+    st.dataframe(y)
 
 # تقسيم البيانات إلى تدريب واختبار
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
-# استخدام RandomForestClassifier
-classifier = RandomForestClassifier(n_estimators=100, random_state=42)
-classifier.fit(X_train, y_train)
-
-# استخدام RandomForestRegressor لتنبؤ الفاينل سكور
+# استخدام RandomForestRegressor
 regressor = RandomForestRegressor(n_estimators=100, random_state=42)
-regressor.fit(X_train, df['Final_Score'])  # هنا نعتمد على 'Final_Score' للتنبؤ بدرجة الفاينل
+regressor.fit(X_train, y_train)  # التدريب باستخدام Final_Score
 
 # واجهة المستخدم
 with st.sidebar:
@@ -60,19 +57,27 @@ new_data = pd.DataFrame({
     'Activity_Score': [activity_score]
 })
 
-# التنبؤ بالدرجة
-predicted_grade = classifier.predict(new_data)[0]
-
-# التنبؤ بدرجة الفاينل
+# التنبؤ بدرجة الفاينل سكور
 predicted_final_score = regressor.predict(new_data)[0]
 
+# التأكد من أن الفاينل سكور لا يتجاوز 40 درجة
+predicted_final_score = min(predicted_final_score, 40)
+
 # حساب المجموع الكلي من الدرجات المدخلة
-total_score = attendance_score + mid_exam_score + lab_exam_score + activity_score
+total_score = attendance_score + mid_exam_score + lab_exam_score + activity_score + predicted_final_score
+
+# تصنيف الطالب بناءً على المجموع الكلي
+if total_score >= 80:
+    grade = 'A'
+elif total_score >= 60:
+    grade = 'B'
+else:
+    grade = 'C'
 
 # عرض النتائج
-st.write(f"### Predicted Grade: {predicted_grade}")
 st.write(f"### Predicted Final Exam Score: {predicted_final_score:.2f}")
 st.write(f"### Total Score: {total_score:.2f}")
+st.write(f"### Predicted Grade: {grade}")
 
 # إنشاء جدول يعرض البيانات المدخلة والتنبؤ
 input_data = {
@@ -80,9 +85,9 @@ input_data = {
     'Mid Exam Score': [mid_exam_score],
     'Lab Exam Score': [lab_exam_score],
     'Activity Score': [activity_score],
-    'Predicted Grade': [predicted_grade],
     'Predicted Final Exam Score': [predicted_final_score],
-    'Total Score': [total_score]
+    'Total Score': [total_score],
+    'Predicted Grade': [grade]
 }
 
 input_df = pd.DataFrame(input_data)
@@ -92,13 +97,13 @@ with st.expander('📊 Prediction Table'):
     st.write('### Entered Data and Predicted Grade:')
     st.dataframe(input_df)
 
-# رسم بياني لتوزيع الدرجات
+# رسم بياني لتوزيع درجات الفاينل المتوقعة
 with st.expander('📈 Prediction Distribution'):
-    st.write('### Distribution of Predicted Grades:')
+    st.write('### Distribution of Predicted Final Exam Scores:')
     fig, ax = plt.subplots()
-    ax.scatter(df['Attendance_Score'] + df['Mid_Exam_Score'] + df['Lab_Exam_Score'] + df['Activity_Score'], df['Grade'], color='blue', label='Actual Grades')
-    ax.scatter(total_score, predicted_grade, color='red', label='Predicted Grade', zorder=5)
+    ax.scatter(df['Attendance_Score'] + df['Mid_Exam_Score'] + df['Lab_Exam_Score'] + df['Activity_Score'], df['Final_Score'], color='blue', label='Actual Final Score')
+    ax.scatter(total_score, predicted_final_score, color='red', label='Predicted Final Score', zorder=5)
     ax.set_xlabel('Total Performance (Attendance, Mid Exam, Lab Exam, Activity)')
-    ax.set_ylabel('Grade')
+    ax.set_ylabel('Final Exam Score')
     ax.legend()
     st.pyplot(fig)
