@@ -36,8 +36,7 @@ with st.expander('⚙️ Data Preparation'):
 # تقسيم البيانات إلى تدريب واختبار
 
 # استخدام LinearRegression بدلاً من RandomForest
-model = LinearRegression()
-model.fit(X_train, y_train)
+
 
 # واجهة المستخدم
 with st.sidebar:
