@@ -62,7 +62,6 @@ with st.sidebar:
     mid_exam_score = st.slider('Mid Exam Score', 0, 15, 10)
     lab_exam_score = st.slider('Lab Exam Score', 0, 15, 10)
     activity_score = st.slider('Activity Score', 0, 25, 15)
-    final_exam_score = st.slider('Final Exam Score', 0, 40, 20)
 
 # تجهيز بيانات المستخدم
 new_data = pd.DataFrame({
@@ -70,7 +69,6 @@ new_data = pd.DataFrame({
     'Mid_Exam_Score': [mid_exam_score],
     'Lab_Exam_Score': [lab_exam_score],
     'Activity_Score': [activity_score],
-    'Final_Score': [final_exam_score],
     'Gender_Male': [1 if gender == 'Male' else 0]
 })
 
@@ -78,7 +76,7 @@ new_data = pd.DataFrame({
 new_data = new_data.reindex(columns=X.columns, fill_value=0)
 
 # حساب المجموع الكلي
-total_score = attendance_score + mid_exam_score + lab_exam_score + activity_score + final_exam_score
+total_score = attendance_score + mid_exam_score + lab_exam_score + activity_score
 st.write(f"Total Score: {total_score}")
 
 # التنبؤ بالاحتمالات لكل مستوى
@@ -104,7 +102,6 @@ input_data = {
     'Mid Exam Score': [mid_exam_score],
     'Lab Exam Score': [lab_exam_score],
     'Activity Score': [activity_score],
-    'Final Exam Score': [final_exam_score],
     'Total Score': [total_score],
     'Predicted Level': [level],
     'Probability A (%)': [prob_A],
