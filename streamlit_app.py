@@ -21,10 +21,10 @@ with st.expander('📊 Dataset'):
     
     # إضافة عمود الدرجات النهائية
     def calculate_level(row):
-        total_score = row['Attendance_Score'] + row['Mid_Exam_Score'] + row['Lab_Exam_Score'] + row['Activity_Score'] + row['Final_Score']
-        if total_score >= 80:
+        total_score = row['Attendance_Score'] + row['Mid_Exam_Score'] + row['Lab_Exam_Score'] + row['Activity_Score'] #+ row['Final_Score']
+        if total_score >= 45:
             return 'A'
-        elif total_score >= 60:
+        elif total_score >= 25:
             return 'B'
         else:
             return 'C'
@@ -62,7 +62,7 @@ with st.sidebar:
     mid_exam_score = st.slider('Mid Exam Score', 0, 15, 10)
     lab_exam_score = st.slider('Lab Exam Score', 0, 15, 10)
     activity_score = st.slider('Activity Score', 0, 25, 15)
-    final_exam_score = st.slider('Final Exam Score', 0, 40, 20)
+  #  final_exam_score = st.slider('Final Exam Score', 0, 40, 20)
 
 # تجهيز بيانات المستخدم
 new_data = pd.DataFrame({
@@ -90,9 +90,9 @@ prob_B = probabilities[0][model.classes_ == 'B'][0] * 100
 prob_C = probabilities[0][model.classes_ == 'C'][0] * 100
 
 # تصنيف الطالب بناءً على المجموع الكلي
-if total_score >= 80:
+if total_score >= 45:
     level = 'A'
-elif total_score >= 60:
+elif total_score >= 25:
     level = 'B'
 else:
     level = 'C'
@@ -104,7 +104,7 @@ input_data = {
     'Mid Exam Score': [mid_exam_score],
     'Lab Exam Score': [lab_exam_score],
     'Activity Score': [activity_score],
-    'Final Exam Score': [final_exam_score],
+   # 'Final Exam Score': [final_exam_score],
     'Total Score': [total_score],
     'Predicted Level': [level],
     'Probability A (%)': [prob_A],
