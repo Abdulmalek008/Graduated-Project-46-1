@@ -34,7 +34,6 @@ with st.expander('⚙️ Data Preparation'):
     st.dataframe(y)
 
 # تقسيم البيانات إلى تدريب واختبار
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
 # استخدام LinearRegression بدلاً من RandomForest
 model = LinearRegression()
