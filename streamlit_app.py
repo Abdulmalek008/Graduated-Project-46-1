@@ -14,15 +14,16 @@ def load_data():
 
 # معالجة البيانات
 def preprocess_data(data):
-    # معالجة القيم الفارغة
+    # حذف القيم الفارغة
     data = data.dropna()
-    # تحويل الأعمدة النصية إلى أرقام
+    # تحويل الأعمدة النصية إلى قيم رقمية
     for col in data.select_dtypes(include='object').columns:
         data[col] = data[col].astype('category').cat.codes
     return data
 
 # تحميل البيانات
-st.title("توقع درجات Final Score")
+st.title("تطبيق توقع درجات Final Score")
+st.write("### تحميل البيانات...")
 data = load_data()
 st.write("## البيانات الأولية:")
 st.write(data.head())
@@ -31,24 +32,28 @@ st.write(data.head())
 data = preprocess_data(data)
 
 # تحديد المدخلات والمخرجات
-X = data.drop("Final Score", axis=1)  # المدخلات
-y = data["Final Score"]  # المخرجات
+try:
+    X = data.drop("Final Score", axis=1)  # المدخلات
+    y = data["Final Score"]  # المخرجات
+except KeyError:
+    st.error("تأكد من وجود عمود 'Final Score' في البيانات!")
+    st.stop()
 
 # تقسيم البيانات للتدريب والاختبار
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 # تدريب النموذج
-model = RandomForestClassifier()
+model = RandomForestClassifier(random_state=42)
 model.fit(X_train, y_train)
 
 # التنبؤ على بيانات الاختبار
 y_pred = model.predict(X_test)
 
-# عرض الدقة
+# عرض دقة النموذج
 accuracy = accuracy_score(y_test, y_pred)
 st.write(f"### دقة النموذج: {accuracy:.2f}")
 
-# واجهة المستخدم لتوقع درجات جديدة
+# واجهة المستخدم لتوقع درجة الطالب
 st.write("## إدخال بيانات الطالب:")
 input_data = {}
 for col in X.columns:
