@@ -1,110 +1,109 @@
 import streamlit as st
-import pandas as pd
 import numpy as np
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import train_test_split
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
 
-# عنوان التطبيق
-st.title('🎓 Student Final Score Prediction App')
+st.title('🤖 Machine Learning Application for Predicting Students Final Grade')
 
-st.info('This app predicts the final exam score based on student performance.')
+st.info('This app builds a machine learning model!')
 
 # تحميل البيانات
-with st.expander('📊 Dataset'):
-    # قراءة البيانات
+with st.expander('Data'):
+    st.write('**Raw Data**')
     df = pd.read_csv('https://raw.githubusercontent.com/Abdulmalek008/Graduated-Project-46-1/refs/heads/master/Student_Info%202.csv')
-    
-    # حذف العمود غير المستخدم
-    df.drop(columns=['Total'], inplace=True)
-    
-    st.write('### Raw Data:')
-    st.dataframe(df)
+    df
 
-# تجهيز البيانات للتعلم الآلي
-with st.expander('⚙️ Data Preparation'):
-    # ترميز عمود الجنس
-    df_encoded = pd.get_dummies(df, columns=['Gender'], drop_first=True)
-    
-    # تحديد الميزات والهدف
-    X = df_encoded.drop(columns=['Final_Score', 'Student_ID'])
-    y = df['Final_Score']
-    
-    # التحقق من القيم المفقودة
-    X = X.fillna(0)
-    y = y.fillna(0)
-    
-    # عرض أنواع البيانات للتحقق
-    st.write("X dtypes before conversion:", X.dtypes)
-    st.write("y dtype before conversion:", y.dtype)
-    
-    # محاولة تحويل كل عمود إلى float واحد تلو الآخر
-    try:
-        X = X.apply(pd.to_numeric, errors='coerce')
-        y = pd.to_numeric(y, errors='coerce')
-        
-        # التحقق مرة أخرى بعد التحويل
-        st.write("X dtypes after conversion:", X.dtypes)
-        st.write("y dtype after conversion:", y.dtype)
-        
-    except Exception as e:
-        st.error(f"Error during conversion: {e}")
-    
-    st.write('### Features (X):')
-    st.dataframe(X)
-    st.write('### Target (y):')
-    st.dataframe(y)
+    st.write('**X**')
+    X_raw = df.drop('Level', axis=1)
+    X_raw
 
-# تقسيم البيانات
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+    st.write('**y**')
+    y_raw = df.Level
+    y_raw
 
-# تحقق من أن البيانات لا تحتوي على قيم مفقودة
-st.write("X_train dtypes:", X_train.dtypes)
-st.write("y_train dtype:", y_train.dtype)
+# عرض البيانات باستخدام scatter chart
+with st.expander('Data visualization'):
+    st.scatter_chart(data=df, x='Attendance_Score', y='Total', color='Level')
+
+# واجهة المستخدم للمدخلات
+with st.sidebar:
+    st.header('Input features')
+    student_ID = st.selectbox('Student_ID', [f"S{str(i).zfill(3)}" for i in range(1, 151)])
+    gender = st.selectbox('Gender', ('Female', 'Male'))
+    attendance_score = st.slider('Attendance_Score', 1, 5, 3)
+    mid_exam_score = st.slider('Mid_Exam_Score', 0, 15, 10)
+    lab_exam_score = st.slider('Lab_Exam_Score', 0, 15, 10)
+    activity_score = st.slider('Activity_Score', 0, 25, 10)
+    final_score = st.slider('Final_Score', 0, 40, 20)
+
+    # إنشاء بيانات الطالب المدخلة
+    data = {
+        'Student_ID': student_ID,
+        'Gender': gender,
+        'Attendance_Score': attendance_score,
+        'Mid_Exam_Score': mid_exam_score,
+        'Lab_Exam_Score': lab_exam_score,
+        'Activity_Score': activity_score,
+        'Final_Score': final_score,
+    }
+    input_df = pd.DataFrame(data, index=[0])
+    input_student = pd.concat([input_df, X_raw], axis=0)
+
+# دالة لتصنيف الدرجات النهائية
+def assign_grade(score):
+    if score > 80:
+        return 'A'
+    elif 60 <= score <= 80:
+        return 'B'
+    else:
+        return 'C'
+
+# تصنيف الدرجة النهائية للطالب المدخل
+input_df['Grade'] = input_df['Final_Score'].apply(assign_grade)
+
+# تحويل البيانات إلى صيغة يمكن استخدامها مع النموذج
+encode = ['Student_ID', 'Gender']
+df_student = pd.get_dummies(input_student, prefix=encode)
+
+X = df_student[1:]
+input_row = df_student[:1]
+
+# تحويل y إلى قيم رقمية
+target_mapper = {'A': 0, 'B': 1, 'C': 2}
+def target_encode(val):
+    return target_mapper[val]
+
+y = y_raw.apply(target_encode)
 
 # تدريب النموذج
-model = RandomForestRegressor(random_state=42)
-model.fit(X_train, y_train)
+clf = RandomForestClassifier()
+clf.fit(X, y)
 
-# واجهة المستخدم
-with st.sidebar:
-    st.header('🔍 Enter Student Data:')
-    gender = st.selectbox('Gender', ['Male', 'Female'])
-    attendance_score = st.slider('Attendance Score', 0, 5, 3)
-    mid_exam_score = st.slider('Mid Exam Score', 0, 15, 10)
-    lab_exam_score = st.slider('Lab Exam Score', 0, 15, 10)
-    activity_score = st.slider('Activity Score', 0, 25, 15)
+# التنبؤ باستخدام النموذج
+prediction = clf.predict(input_row)
+prediction_proba = clf.predict_proba(input_row)
 
-# تجهيز بيانات المستخدم
-new_data = pd.DataFrame({
-    'Attendance_Score': [attendance_score],
-    'Mid_Exam_Score': [mid_exam_score],
-    'Lab_Exam_Score': [lab_exam_score],
-    'Activity_Score': [activity_score],
-    'Gender_Male': [1 if gender == 'Male' else 0]
-})
+# إنشاء جدول لاحتمالات التنبؤ
+df_prediction_proba = pd.DataFrame(prediction_proba)
+df_prediction_proba.columns = ['A', 'B', 'C']
+df_prediction_proba.rename(columns={0: 'A', 1: 'B', 2: 'C'})
 
-# التأكد من تطابق الأعمدة مع النموذج
-new_data = new_data.reindex(columns=X.columns, fill_value=0)
+# عرض النتائج
+st.subheader('Predicted Level (using model)')
+st.dataframe(
+    df_prediction_proba,
+    column_config={
+        'A': st.column_config.ProgressColumn('A', format='%f', width='medium', min_value=0, max_value=1),
+        'B': st.column_config.ProgressColumn('B', format='%f', width='medium', min_value=0, max_value=1),
+        'C': st.column_config.ProgressColumn('C', format='%f', width='medium', min_value=0, max_value=1),
+    },
+    hide_index=True,
+)
 
-# التنبؤ بالدرجة النهائية
-predicted_final_score = model.predict(new_data)[0]
+student_level = np.array(['A', 'B', 'C'])
+st.success(f"Predicted Level (from model): {student_level[prediction][0]}")
 
-# إنشاء جدول يعرض البيانات المدخلة والتنبؤ
-input_data = {
-    'Gender': [gender],
-    'Attendance Score': [attendance_score],
-    'Mid Exam Score': [mid_exam_score],
-    'Lab Exam Score': [lab_exam_score],
-    'Activity Score': [activity_score],
-    'Predicted Final Score': [predicted_final_score]
-}
-
-input_df = pd.DataFrame(input_data)
-
-# عرض الجدول للمستخدم
-with st.expander('📊 Prediction Table'):
-    st.write('### Entered Data and Predicted Final Score:')
-    st.dataframe(input_df)
-
-# عرض التنبؤ
-st.success(f'The predicted final exam score is: **{predicted_final_score:.2f}**')
+# عرض التصنيف بناءً على الدرجة النهائية
+st.subheader('Manual Grade Classification')
+manual_grade = input_df['Grade'].iloc[0]
+st.info(f"The grade based on the final score is: {manual_grade}")
