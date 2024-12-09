@@ -12,7 +12,7 @@ st.title('🎓 Student Grade Prediction App')
 st.info('This app predicts the final grade (A, B, C) of students based on their performance scores.')
 
 # تحميل البيانات
-with st.expander('📊 Dataset01'):
+with st.expander('📊 Dataset'):
     # قراءة البيانات
     df = pd.read_csv('https://raw.githubusercontent.com/Abdulmalek008/Graduated-Project-46-1/refs/heads/master/Student_Info%202.csv')
     
