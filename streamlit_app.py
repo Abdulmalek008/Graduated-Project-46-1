@@ -27,30 +27,32 @@ with st.expander('📊 Upload Student Data'):
         st.write('### Available Columns in the Data:')
         st.write(df.columns)
 
-# إذا كانت الأعمدة المطلوبة موجودة، نقوم برسم المخطط
-with st.expander('📊 Visualize Data Distribution'):
-    if all(col in df.columns for col in ['Attendance_Score', 'Mid_Exam_Score', 'Lab_Exam_Score', 'Activity_Score', 'Final_Score']):
-        st.write('### Distribution of Scores:')
-        fig, ax = plt.subplots(figsize=(10, 6))
-        sns.boxplot(data=df[['Attendance_Score', 'Mid_Exam_Score', 'Lab_Exam_Score', 'Activity_Score', 'Final_Score']], ax=ax)
-        st.pyplot(fig)
-    else:
-        st.warning('The required columns for plotting (Attendance_Score, Mid_Exam_Score, Lab_Exam_Score, Activity_Score, Final_Score) are not found in the data.')
-
 # تجهيز البيانات
 with st.expander('⚙️ Data Preparation'):
-    # إزالة الأعمدة غير المهمة أو التي لن نستخدمها
-    df = df.drop(columns=['Total_Score'], errors='ignore')
+    # عرض الأعمدة الفعلية التي تم تحميلها
+    st.write('### Available Columns in the DataFrame:')
+    st.write(df.columns)
 
-    # تقسيم البيانات إلى المدخلات (features) والهدف (target)
-    X = df[['Attendance_Score', 'Mid_Exam_Score', 'Lab_Exam_Score', 'Activity_Score']]
-    y = df['Final_Score']  # نهدف للتنبؤ بدرجة الفاينل سكور
+    # هنا يمكنك تعديل الأعمدة التي تستخدمها بناءً على الأعمدة الفعلية في البيانات
+    required_columns = ['Attendance_Score', 'Mid_Exam_Score', 'Lab_Exam_Score', 'Activity_Score', 'Final_Score']
+    
+    # التحقق إذا كانت الأعمدة المطلوبة موجودة في البيانات
+    missing_columns = [col for col in required_columns if col not in df.columns]
+    if len(missing_columns) > 0:
+        st.warning(f"The following required columns are missing: {', '.join(missing_columns)}")
+    else:
+        # إزالة الأعمدة غير المهمة أو التي لن نستخدمها
+        df = df.drop(columns=['Total_Score'], errors='ignore')
 
-    # عرض البيانات
-    st.write('### Features (X):')
-    st.dataframe(X)
-    st.write('### Target (y):')
-    st.dataframe(y)
+        # تقسيم البيانات إلى المدخلات (features) والهدف (target)
+        X = df[['Attendance_Score', 'Mid_Exam_Score', 'Lab_Exam_Score', 'Activity_Score']]
+        y = df['Final_Score']  # نهدف للتنبؤ بدرجة الفاينل سكور
+
+        # عرض البيانات
+        st.write('### Features (X):')
+        st.dataframe(X)
+        st.write('### Target (y):')
+        st.dataframe(y)
 
 # تقسيم البيانات إلى تدريب واختبار
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
