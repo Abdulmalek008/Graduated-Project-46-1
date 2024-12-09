@@ -33,9 +33,21 @@ with st.expander('⚙️ Data Preparation'):
     X = X.fillna(0)
     y = y.fillna(0)
     
-    # تأكد من أن جميع القيم رقمية
-    X = X.astype(float)
-    y = y.astype(float)
+    # عرض أنواع البيانات للتحقق
+    st.write("X dtypes before conversion:", X.dtypes)
+    st.write("y dtype before conversion:", y.dtype)
+    
+    # محاولة تحويل كل عمود إلى float واحد تلو الآخر
+    try:
+        X = X.apply(pd.to_numeric, errors='coerce')
+        y = pd.to_numeric(y, errors='coerce')
+        
+        # التحقق مرة أخرى بعد التحويل
+        st.write("X dtypes after conversion:", X.dtypes)
+        st.write("y dtype after conversion:", y.dtype)
+        
+    except Exception as e:
+        st.error(f"Error during conversion: {e}")
     
     st.write('### Features (X):')
     st.dataframe(X)
