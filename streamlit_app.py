@@ -129,7 +129,7 @@ with st.expander('📈 Prediction Results'):
 
 # رسم بياني يوضح توزيع المستويات
 with st.expander('📊 Grade Distribution by Total Score'):
-    df['Total_Score'] = df['Attendance_Score'] + df['Mid_Exam_Score'] + df['Lab_Exam_Score'] + df['Activity_Score'] + df['Final_Score']
+    df['Total_Score'] = df['Attendance_Score'] + df['Mid_Exam_Score'] + df['Lab_Exam_Score'] + df['Activity_Score'] 
     st.write('### Distribution of Total Scores by Grade:')
     scatter_data = df[['Total_Score', 'Level']]
     st.scatter_chart(scatter_data, x='Total_Score', y='Level')
