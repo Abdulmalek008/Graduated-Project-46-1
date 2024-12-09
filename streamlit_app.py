@@ -21,7 +21,7 @@ with st.expander('📊 Dataset'):
     
     # إضافة عمود الدرجات النهائية
     def calculate_level(row):
-        total_score = row['Attendance_Score'] + row['Mid_Exam_Score'] + row['Lab_Exam_Score'] + row['Activity_Score'] + row['Final_Score']
+        total_score = row['Attendance_Score'] + row['Mid_Exam_Score'] + row['Lab_Exam_Score'] + row['Activity_Score'] 
         if total_score >= 80:
             return 'A'
         elif total_score >= 60:
@@ -29,7 +29,7 @@ with st.expander('📊 Dataset'):
         else:
             return 'C'
 
-    df['Level'] = df.apply(calculate_level, axis=1)
+    df['Final_Score'] = df.apply(calculate_final _score, axis=1)
     st.write('### Raw Data:')
     st.dataframe(df)
 
@@ -39,8 +39,8 @@ with st.expander('⚙️ Data Preparation'):
     df_encoded = pd.get_dummies(df, columns=['Gender'], drop_first=True)
     
     # تحديد الميزات والهدف
-    X = df_encoded.drop(columns=['Level', 'Student_ID'])
-    y = df['Level']
+    X = df_encoded.drop(columns=['Final_Score', 'Student_ID'])
+    y = df['Final_Score']
     
     st.write('### Features (X):')
     st.dataframe(X)
@@ -62,7 +62,7 @@ with st.sidebar:
     mid_exam_score = st.slider('Mid Exam Score', 0, 15, 10)
     lab_exam_score = st.slider('Lab Exam Score', 0, 15, 10)
     activity_score = st.slider('Activity Score', 0, 25, 15)
-    final_exam_score = st.slider('Final Exam Score', 0, 40, 20)
+   
 
 # تجهيز بيانات المستخدم
 new_data = pd.DataFrame({
@@ -70,7 +70,6 @@ new_data = pd.DataFrame({
     'Mid_Exam_Score': [mid_exam_score],
     'Lab_Exam_Score': [lab_exam_score],
     'Activity_Score': [activity_score],
-    'Final_Score': [final_exam_score],
     'Gender_Male': [1 if gender == 'Male' else 0]
 })
 
@@ -78,7 +77,7 @@ new_data = pd.DataFrame({
 new_data = new_data.reindex(columns=X.columns, fill_value=0)
 
 # حساب المجموع الكلي
-total_score = attendance_score + mid_exam_score + lab_exam_score + activity_score + final_exam_score
+total_score = attendance_score + mid_exam_score + lab_exam_score + activity_score 
 st.write(f"Total Score: {total_score}")
 
 # التنبؤ بالاحتمالات لكل مستوى
@@ -104,7 +103,6 @@ input_data = {
     'Mid Exam Score': [mid_exam_score],
     'Lab Exam Score': [lab_exam_score],
     'Activity Score': [activity_score],
-    'Final Exam Score': [final_exam_score],
     'Total Score': [total_score],
     'Predicted Level': [level],
     'Probability A (%)': [prob_A],
@@ -129,7 +127,7 @@ with st.expander('📈 Prediction Results'):
 
 # رسم بياني يوضح توزيع المستويات
 with st.expander('📊 Grade Distribution by Total Score'):
-    df['Total_Score'] = df['Attendance_Score'] + df['Mid_Exam_Score'] + df['Lab_Exam_Score'] + df['Activity_Score'] + df['Final_Score']
+    df['Total_Score'] = df['Attendance_Score'] + df['Mid_Exam_Score'] + df['Lab_Exam_Score'] + df['Activity_Score'] 
     st.write('### Distribution of Total Scores by Grade:')
     scatter_data = df[['Total_Score', 'Level']]
     st.scatter_chart(scatter_data, x='Total_Score', y='Level')
