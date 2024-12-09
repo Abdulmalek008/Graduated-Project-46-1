@@ -1,15 +1,13 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 
-
-
 # عنوان التطبيق
-st.title('🎓 Student Grade Prediction App')
+st.title('🎓 Student Final Score Prediction App')
 
-st.info('This app predicts the final grade (A, B, C) of students based on their performance scores.')
+st.info('This app predicts the final score of students based on their performance scores.')
 
 # تحميل البيانات
 with st.expander('📊 Dataset'):
@@ -20,16 +18,6 @@ with st.expander('📊 Dataset'):
     df.drop(columns=['Total'], inplace=True)
     
     # إضافة عمود الدرجات النهائية
-    def calculate_level(row):
-        total_score = row['Attendance_Score'] + row['Mid_Exam_Score'] + row['Lab_Exam_Score'] + row['Activity_Score'] + row['Final_Score']
-        if total_score >= 80:
-            return 'A'
-        elif total_score >= 60:
-            return 'B'
-        else:
-            return 'C'
-
-    df['Level'] = df.apply(calculate_level, axis=1)
     st.write('### Raw Data:')
     st.dataframe(df)
 
@@ -39,8 +27,8 @@ with st.expander('⚙️ Data Preparation'):
     df_encoded = pd.get_dummies(df, columns=['Gender'], drop_first=True)
     
     # تحديد الميزات والهدف
-    X = df_encoded.drop(columns=['Level', 'Student_ID'])
-    y = df['Level']
+    X = df_encoded.drop(columns=['Final_Score', 'Level', 'Student_ID'])  # استخدام Final_Score كهدف
+    y = df['Final_Score']  # الهدف الآن هو Final_Score
     
     st.write('### Features (X):')
     st.dataframe(X)
@@ -51,7 +39,7 @@ with st.expander('⚙️ Data Preparation'):
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
 # تدريب النموذج
-model = RandomForestClassifier(random_state=42)
+model = RandomForestRegressor(random_state=42)
 model.fit(X_train, y_train)
 
 # واجهة المستخدم
@@ -77,27 +65,13 @@ new_data = pd.DataFrame({
 # التأكد من تطابق الأعمدة مع النموذج
 new_data = new_data.reindex(columns=X.columns, fill_value=0)
 
-# حساب المجموع الكلي
-total_score = attendance_score + mid_exam_score + lab_exam_score + activity_score + final_exam_score
-st.write(f"Total Score: {total_score}")
+# التنبؤ بالدرجة النهائية
+predicted_score = model.predict(new_data)
 
-# التنبؤ بالاحتمالات لكل مستوى
-probabilities = model.predict_proba(new_data)
+# عرض النتيجة للمستخدم
+st.write(f"The predicted final score for the student is: **{predicted_score[0]:.2f}**")
 
-# استخراج الاحتمالات لكل من A, B, C
-prob_A = probabilities[0][model.classes_ == 'A'][0] * 100
-prob_B = probabilities[0][model.classes_ == 'B'][0] * 100
-prob_C = probabilities[0][model.classes_ == 'C'][0] * 100
-
-# تصنيف الطالب بناءً على المجموع الكلي
-if total_score >= 80:
-    level = 'A'
-elif total_score >= 60:
-    level = 'B'
-else:
-    level = 'C'
-
-# إنشاء جدول يعرض البيانات المدخلة والتنبؤ
+# عرض الجدول مع البيانات المدخلة والدرجة المتوقعة
 input_data = {
     'Gender': [gender],
     'Attendance Score': [attendance_score],
@@ -105,31 +79,16 @@ input_data = {
     'Lab Exam Score': [lab_exam_score],
     'Activity Score': [activity_score],
     'Final Exam Score': [final_exam_score],
-    'Total Score': [total_score],
-    'Predicted Level': [level],
-    'Probability A (%)': [prob_A],
-    'Probability B (%)': [prob_B],
-    'Probability C (%)': [prob_C]
+    'Predicted Final Score': [predicted_score[0]]
 }
 
 input_df = pd.DataFrame(input_data)
 
-# عرض الجدول للمستخدم
 with st.expander('📊 Prediction Table'):
-    st.write('### Entered Data and Predicted Grade:')
+    st.write('### Entered Data and Predicted Final Score:')
     st.dataframe(input_df)
 
-# عرض التنبؤ بالاحتمالات
-with st.expander('📈 Prediction Results'):
-    st.write('### Predicted Grade Probability:')
-    st.success(f'The predicted grade probabilities are:')
-    st.write(f"**A**: {prob_A:.2f}%")
-    st.write(f"**B**: {prob_B:.2f}%")
-    st.write(f"**C**: {prob_C:.2f}%")
-
-# رسم بياني يوضح توزيع المستويات
-with st.expander('📊 Grade Distribution by Total Score'):
-    df['Total_Score'] = df['Attendance_Score'] + df['Mid_Exam_Score'] + df['Lab_Exam_Score'] + df['Activity_Score'] + df['Final_Score']
-    st.write('### Distribution of Total Scores by Grade:')
-    scatter_data = df[['Total_Score', 'Level']]
-    st.scatter_chart(scatter_data, x='Total_Score', y='Level')
+# رسم بياني يوضح توزيع الدرجات النهائية
+with st.expander('📊 Final Score Distribution'):
+    st.write('### Distribution of Final Scores:')
+    st.bar_chart(df['Final_Score'])
