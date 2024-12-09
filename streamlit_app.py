@@ -1,8 +1,10 @@
+
 import streamlit as st
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 # عنوان التطبيق
 st.title('🎓 Student Final Exam Score Prediction App')
@@ -23,6 +25,14 @@ with st.expander('📊 Dataset'):
     # عرض البيانات الأولية
     st.write('### Raw Data:')
     st.dataframe(df)
+
+# تحليل البيانات
+with st.expander('📊 Data Analysis'):
+    st.write('### Correlation Matrix:')
+    st.write(df.corr())
+    
+    st.write('### Pairplot (relationship between features):')
+    st.line_chart(df[['Attendance_Score', 'Mid_Exam_Score', 'Lab_Exam_Score', 'Activity_Score', 'Final_Score']])
 
 # تجهيز البيانات للتعلم الآلي
 with st.expander('⚙️ Data Preparation'):
@@ -49,6 +59,17 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_
 model = RandomForestRegressor(random_state=42)
 model.fit(X_train, y_train)
 
+# تقييم النموذج
+y_pred = model.predict(X_test)
+mae = mean_absolute_error(y_test, y_pred)
+mse = mean_squared_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+
+with st.expander('📊 Model Evaluation'):
+    st.write(f"**Mean Absolute Error (MAE):** {mae:.2f}")
+    st.write(f"**Mean Squared Error (MSE):** {mse:.2f}")
+    st.write(f"**R-squared (R²):** {r2:.2f}")
+
 # واجهة المستخدم
 with st.sidebar:
     st.header('🔍 Enter Student Data:')
@@ -73,30 +94,12 @@ new_data = new_data.reindex(columns=X.columns, fill_value=0)
 # التنبؤ بالدرجة النهائية
 predicted_final_score = model.predict(new_data)[0]
 
-# إنشاء جدول يعرض البيانات المدخلة والتنبؤ
-input_data = {
-    'Gender': [gender],
-    'Attendance Score': [attendance_score],
-    'Mid Exam Score': [mid_exam_score],
-    'Lab Exam Score': [lab_exam_score],
-    'Activity Score': [activity_score],
-    'Predicted Final Score': [predicted_final_score]
-}
-
-input_df = pd.DataFrame(input_data)
-
-# عرض الجدول للمستخدم
-with st.expander('📊 Prediction Table'):
-    st.write('### Entered Data and Predicted Final Score:')
-    st.dataframe(input_df)
-
 # عرض التنبؤ
 with st.expander('📈 Prediction Results'):
     st.write('### Predicted Final Exam Score:')
     st.success(f'The predicted final exam score is: **{predicted_final_score:.2f}**')
 
-# رسم بياني يوضح توزيع الدرجات الفعلية مقابل التنبؤات
+# عرض توزيع التوقعات
 with st.expander('📊 Actual vs Predicted Final Scores'):
-    st.write('### Distribution of Actual vs Predicted Final Scores:')
-    scatter_data = pd.DataFrame({'Actual Final Score': y_test, 'Predicted Final Score': model.predict(X_test)})
+    scatter_data = pd.DataFrame({'Actual Final Score': y_test, 'Predicted Final Score': y_pred})
     st.line_chart(scatter_data)
