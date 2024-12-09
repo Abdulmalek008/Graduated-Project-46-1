@@ -62,6 +62,9 @@ new_data = pd.DataFrame({
 # التنبؤ بدرجة الفاينل سكور
 predicted_final_score = model.predict(new_data)[0]
 
+# التأكد من أن الفاينل سكور لا يتجاوز 40 درجة
+predicted_final_score = min(predicted_final_score, 40)
+
 # حساب المجموع الكلي
 total_score = attendance_score + mid_exam_score + lab_exam_score + activity_score + predicted_final_score
 
