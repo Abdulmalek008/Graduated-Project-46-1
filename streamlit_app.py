@@ -42,6 +42,10 @@ with st.expander('⚙️ Data Preparation'):
     X = df_encoded.drop(columns=['Final_Score', 'Student_ID'])
     y = df['Final_Score'].astype('category')  # Ensure target is categorical
     
+    # Ensure correct data types
+    X = X.astype(np.float64)
+    y = y.astype('category')
+
     st.write('### Features (X):')
     st.dataframe(X)
     st.write('### Target (y):')
