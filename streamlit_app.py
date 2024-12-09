@@ -29,6 +29,14 @@ with st.expander('⚙️ Data Preparation'):
     X = df_encoded.drop(columns=['Final_Score', 'Student_ID'])
     y = df['Final_Score']
     
+    # التحقق من القيم المفقودة
+    X = X.fillna(0)
+    y = y.fillna(0)
+    
+    # تأكد من أن جميع القيم رقمية
+    X = X.astype(float)
+    y = y.astype(float)
+    
     st.write('### Features (X):')
     st.dataframe(X)
     st.write('### Target (y):')
@@ -36,6 +44,10 @@ with st.expander('⚙️ Data Preparation'):
 
 # تقسيم البيانات
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# تحقق من أن البيانات لا تحتوي على قيم مفقودة
+st.write("X_train dtypes:", X_train.dtypes)
+st.write("y_train dtype:", y_train.dtype)
 
 # تدريب النموذج
 model = RandomForestRegressor(random_state=42)
