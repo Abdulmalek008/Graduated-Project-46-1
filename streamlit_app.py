@@ -15,10 +15,14 @@ with st.expander('📊 Dataset'):
     df = pd.read_csv('https://raw.githubusercontent.com/Abdulmalek008/Graduated-Project-46-1/refs/heads/master/Student_Info%202.csv')
     st.write(df.head())
 
+# عرض أسماء الأعمدة للتحقق
+st.write("Column names in the dataset:", df.columns)
+
 # معالجة البيانات
 st.subheader('Data Preprocessing')
 
-# نفترض أن الأعمدة هي: 'attendance', 'mid_exam', 'lab_exam', 'activity', 'final_score'
+# بعد التحقق من الأعمدة الصحيحة، سنحدد المميزات والهدف
+# تأكد من تعديل هذه الأعمدة وفقًا لما هو موجود في البيانات
 X = df[['attendance', 'mid_exam', 'lab_exam', 'activity']]  # المميزات
 y = df['final_score']  # الهدف
 
