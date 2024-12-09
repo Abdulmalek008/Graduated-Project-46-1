@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 
@@ -37,10 +37,12 @@ with st.expander('⚙️ Data Preparation'):
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
 from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor
 
-# استخدام Decision Tree بدلاً من LinearRegression
-model = DecisionTreeRegressor(random_state=42)
+# استخدام RandomForest بدلاً من DecisionTree
+model = RandomForestRegressor(random_state=42)
 model.fit(X_train, y_train)
+
 
 
 # واجهة المستخدم
