@@ -3,132 +3,60 @@ import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
-
-
-
-# عنوان التطبيق
-st.title('🎓 Student Grade Prediction App')
-
-st.info('This app predicts the final grade (A, B, C) of students based on their performance scores.')
+from sklearn.metrics import accuracy_score
 
 # تحميل البيانات
-with st.expander('📊 Dataset'):
-    # قراءة البيانات
-    df = pd.read_csv('https://raw.githubusercontent.com/Abdulmalek008/Graduated-Project-46-1/refs/heads/master/Student_Info%202.csv')
-    
-    # حذف العمود غير المستخدم
-    df.drop(columns=['Total'], inplace=True)
-    
-    # إضافة عمود الدرجات النهائية
-    def calculate_level(row):
-        total_score = row['Attendance_Score'] + row['Mid_Exam_Score'] + row['Lab_Exam_Score'] + row['Activity_Score']  + row['Final_Score']
-        if total_score >= 80:
-            return 'A'
-        elif total_score >= 60:
-            return 'B'
-        else:
-            return 'C'
+@st.cache
+def load_data():
+    url = "https://raw.githubusercontent.com/Abdulmalek008/Graduated-Project-46-1/refs/heads/master/Student_Info%202.csv"
+    data = pd.read_csv(url)
+    return data
 
-    df['Level'] = df.apply(calculate_level, axis=1)
-    st.write('### Raw Data:')
-    st.dataframe(df)
+# معالجة البيانات
+def preprocess_data(data):
+    # معالجة القيم الفارغة
+    data = data.dropna()
+    # تحويل الأعمدة النصية إلى أرقام
+    for col in data.select_dtypes(include='object').columns:
+        data[col] = data[col].astype('category').cat.codes
+    return data
 
-# تجهيز البيانات للتعلم الآلي
-with st.expander('⚙️ Data Preparation'):
-    # ترميز عمود الجنس
-    df_encoded = pd.get_dummies(df, columns=['Gender'], drop_first=True)
-    
-    # تحديد الميزات والهدف
-    X = df_encoded.drop(columns=['Level', 'Student_ID'])
-    y = df['Level']
-    
-    st.write('### Features (X):')
-    st.dataframe(X)
-    st.write('### Target (y):')
-    st.dataframe(y)
+# تحميل البيانات
+st.title("توقع درجات Final Score")
+data = load_data()
+st.write("## البيانات الأولية:")
+st.write(data.head())
 
-# تقسيم البيانات
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+# معالجة البيانات
+data = preprocess_data(data)
+
+# تحديد المدخلات والمخرجات
+X = data.drop("Final Score", axis=1)  # المدخلات
+y = data["Final Score"]  # المخرجات
+
+# تقسيم البيانات للتدريب والاختبار
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 # تدريب النموذج
-model = RandomForestClassifier(random_state=42)
+model = RandomForestClassifier()
 model.fit(X_train, y_train)
 
-# واجهة المستخدم
-with st.sidebar:
-    st.header('🔍 Enter Student Data:')
-    gender = st.selectbox('Gender', ['Male', 'Female'])
-    attendance_score = st.slider('Attendance Score', 0, 5, 3)
-    mid_exam_score = st.slider('Mid Exam Score', 0, 15, 10)
-    lab_exam_score = st.slider('Lab Exam Score', 0, 15, 10)
-    activity_score = st.slider('Activity Score', 0, 25, 15)
-    final_score = st.slider('Final Score', 0, 40, 15)
-# تجهيز بيانات المستخدم
-new_data = pd.DataFrame({
-    'Attendance_Score': [attendance_score],
-    'Mid_Exam_Score': [mid_exam_score],
-    'Lab_Exam_Score': [lab_exam_score],
-    'Activity_Score': [activity_score],
-    'Final_Score': [final_score],
-    'Gender_Male': [1 if gender == 'Male' else 0]
-})
+# التنبؤ على بيانات الاختبار
+y_pred = model.predict(X_test)
 
-# التأكد من تطابق الأعمدة مع النموذج
-new_data = new_data.reindex(columns=X.columns, fill_value=0)
+# عرض الدقة
+accuracy = accuracy_score(y_test, y_pred)
+st.write(f"### دقة النموذج: {accuracy:.2f}")
 
-# حساب المجموع الكلي
-total_score = attendance_score + mid_exam_score + lab_exam_score + activity_score + final_score
-st.write(f"Total Score: {total_score}")
+# واجهة المستخدم لتوقع درجات جديدة
+st.write("## إدخال بيانات الطالب:")
+input_data = {}
+for col in X.columns:
+    input_data[col] = st.number_input(f"{col}", value=0)
 
-# التنبؤ بالاحتمالات لكل مستوى
-probabilities = model.predict_proba(new_data)
+input_df = pd.DataFrame([input_data])
 
-# استخراج الاحتمالات لكل من A, B, C
-prob_A = probabilities[0][model.classes_ == 'A'][0] * 100
-prob_B = probabilities[0][model.classes_ == 'B'][0] * 100
-prob_C = probabilities[0][model.classes_ == 'C'][0] * 100
-
-# تصنيف الطالب بناءً على المجموع الكلي
-if total_score >= 80:
-    level = 'A'
-elif total_score >= 60:
-    level = 'B'
-else:
-    level = 'C'
-
-# إنشاء جدول يعرض البيانات المدخلة والتنبؤ
-input_data = {
-    'Gender': [gender],
-    'Attendance Score': [attendance_score],
-    'Mid Exam Score': [mid_exam_score],
-    'Lab Exam Score': [lab_exam_score],
-    'Activity Score': [activity_score],
-    'Final Score': [final_score],
-    'Total Score': [total_score],
-    'Predicted Level': [level],
-    'Probability A (%)': [prob_A],
-    'Probability B (%)': [prob_B],
-    'Probability C (%)': [prob_C]
-}
-
-input_df = pd.DataFrame(input_data)
-
-# عرض الجدول للمستخدم
-with st.expander('📊 Prediction Table'):
-    st.write('### Entered Data and Predicted Grade:')
-    st.dataframe(input_df)
-
-# عرض التنبؤ بالاحتمالات
-with st.expander('📈 Prediction Results'):
-    st.write('### Predicted Grade Probability:')
-    st.success(f'The predicted grade probabilities are:')
-    st.write(f"**A**: {prob_A:.2f}%")
-    st.write(f"**B**: {prob_B:.2f}%")
-    st.write(f"**C**: {prob_C:.2f}%")
-
-# رسم بياني يوضح توزيع المستويات
-with st.expander('📊 Grade Distribution by Total Score'):
-    df['Total_Score'] = df['Attendance_Score'] + df['Mid_Exam_Score'] + df['Lab_Exam_Score'] + df['Activity_Score'] + df['Final_Score']
-    st.write('### Distribution of Total Scores by Grade:')
-    scatter_data = df[['Total_Score', 'Level']]
-    st.scatter_chart(scatter_data, x='Total_Score', y='Level')
+# توقع الدرجة النهائية
+if st.button("توقع"):
+    prediction = model.predict(input_df)
+    st.write(f"### الدرجة النهائية المتوقعة: {prediction[0]}")
