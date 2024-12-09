@@ -1,67 +1,129 @@
+
 import streamlit as st
-import pandas as pd
 import numpy as np
+import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
 
-# تحميل البيانات
-@st.cache
-def load_data():
-    url = "https://raw.githubusercontent.com/Abdulmalek008/Graduated-Project-46-1/refs/heads/master/Student_Info%202.csv"
-    data = pd.read_csv(url)
-    return data
+st.title('🤖 Machine Learning Application for Predicting Students Final Grade')
 
-# معالجة البيانات
-def preprocess_data(data):
-    # حذف القيم الفارغة
-    data = data.dropna()
-    # تحويل الأعمدة النصية إلى قيم رقمية
-    for col in data.select_dtypes(include='object').columns:
-        data[col] = data[col].astype('category').cat.codes
-    return data
 
-# تحميل البيانات
-st.title("تطبيق توقع درجات Final Score")
-st.write("### تحميل البيانات...")
-data = load_data()
-st.write("## البيانات الأولية:")
-st.write(data.head())
+st.info('This is app builds a machine learning model!')
 
-# معالجة البيانات
-data = preprocess_data(data)
+with st.expander('Data'):
+  st.write('**Raw Data**')
+  df = pd.read_csv('https://raw.githubusercontent.com/Abdulmalek008/Graduated-Project-46-1/refs/heads/master/Student_Info%202.csv')
+  df
+  st.write('**X**')
+  X_raw = df.drop('Level', axis=1)
+  X_raw
+  st.write('**y**')
+  y_raw = df.Level
+  y_raw
 
-# تحديد المدخلات والمخرجات
-try:
-    X = data.drop("Final Score", axis=1)  # المدخلات
-    y = data["Final Score"]  # المخرجات
-except KeyError:
-    st.error("تأكد من وجود عمود 'Final Score' في البيانات!")
-    st.stop()
+with st.expander('Data visualization'):
+ st.scatter_chart(data=df , x='Attendance_Score', y='Total', color='Level') 
 
-# تقسيم البيانات للتدريب والاختبار
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+with st.sidebar:
+  st.header('Input features')
+  student_ID = st.selectbox('student_ID' , ('S001','S002','S003','S004','S005','S006','S007','S008','S009','S010','S011','S012','S013','S014','S015','S016','S017','S018','S019','S020','S021','S022','S023','S024','S025','S026','S027','S028','S029','S030','S031','S032','S033','S034','S035','S036','S037','S038','S039','S040','S041','S042','S043','S044','S045','S046','S047','S048','S049','S050','S051','S052','S053','S054','S055','S056','S057','S058','S059','S060','S061','S062','S063','S064','S065','S066','S067','S068','S069','S070','S071','S072','S073','S074','S075','S076','S077','S078','S079','S080','S081','S082','S083','S084','S085','S086','S087','S088','S089','S090','S091','S092','S093','S094','S095','S096','S097','S098','S099','S100','S101','S102','S103','S104','S105','S106','S107','S108','S109','S110','S111','S112','S113','S114','S115','S116','S117','S118','S119','S120','S121','S122','S123','S124','S125','S126','S127','S128','S129','S130','S131','S132','S133','S134','S135','S136','S137','S138','S139','S140','S141','S142','S143','S144','S145','S146','S147','S148','S149','S150'))
+  
 
-# تدريب النموذج
-model = RandomForestClassifier(random_state=42)
-model.fit(X_train, y_train)
+  gender = st.selectbox('Gender',('Female','Male'))
+  
+  attendance_score = st.slider('attendance_score' , 1 , 5 , 3)
+  mid_exam_score = st.slider('mid_exam_score' , 0 , 15 , 10)
+  lab_exam_score = st.slider('lab_exam_score' , 0 , 15 , 10)
+  activity_score = st.slider('activity_score' , 0 , 25 , 10)
+  final_score = st.slider('final_score' , 0 , 40, 20)
 
-# التنبؤ على بيانات الاختبار
-y_pred = model.predict(X_test)
+  data = {'Student_ID': student_ID,
+        'Gender': gender,
+        'Attendance_Score': attendance_score,
+        'Mid_Exam_Score': mid_exam_score,
+        'Lab_Exam_Score': lab_exam_score,
+        'Activity_Score': activity_score,
+        'Final_Score': final_score}
+  input_df = pd.DataFrame(data, index=[0])
+  input_student = pd.concat([input_df, X_raw], axis=0)
 
-# عرض دقة النموذج
-accuracy = accuracy_score(y_test, y_pred)
-st.write(f"### دقة النموذج: {accuracy:.2f}")
+with st.expander('input features'):
+  st.write('**input student**')
+  input_df
+  st.write('**Comined student data**')
+  input_student
+#encode x
+encode = ['Student_ID', 'Gender']
+df_student = pd.get_dummies(input_student, prefix=encode)
 
-# واجهة المستخدم لتوقع درجة الطالب
-st.write("## إدخال بيانات الطالب:")
-input_data = {}
-for col in X.columns:
-    input_data[col] = st.number_input(f"{col}", value=0)
+X = df_student[1:]
+input_row = df_student[:1]
 
-input_df = pd.DataFrame([input_data])
+#encode y
+target_mapper = {'A': 0,
+                 'B': 1,
+                 'C': 2}
+def target_encode(val):
+  return target_mapper[val]
 
-# توقع الدرجة النهائية
-if st.button("توقع"):
-    prediction = model.predict(input_df)
-    st.write(f"### الدرجة النهائية المتوقعة: {prediction[0]}")
+y = y_raw.apply(target_encode)
+
+
+with st.expander('Data preparation'):  
+  st.write('**Encode X (input student)**')
+  input_row
+  st.write('**Encode y**')
+  y
+
+
+
+clf = RandomForestClassifier()
+clf.fit(X, y)
+
+prediction = clf.predict(input_row)
+prediction_proba = clf.predict_proba(input_row)
+
+df_prediction_proba = pd.DataFrame(prediction_proba)
+df_prediction_proba.columns = ['A', 'B', 'C']
+df_prediction_proba.rename(columns={0: 'A',
+                                    1: 'B',
+                                    2: 'C'})
+
+                                  
+st.subheader('Predicted Level')
+st.dataframe(df_prediction_proba,
+             column_config={
+               'A':st.column_config.ProgressColumn(
+                 'A',
+                 format='%f',
+                 width='medium',
+                 min_value=0,
+                 max_value=1
+               ),
+               'B':st.column_config.ProgressColumn(
+                 'B',
+                 format='%f',
+                 width='medium',
+                 min_value=0,
+                 max_value=1
+               ),
+               'C':st.column_config.ProgressColumn(
+                 'C',
+                 format='%f',
+                 width='medium',
+                 min_value=0,
+                 max_value=1
+               ),
+             }, hide_index=True)
+
+student_level = np.array(['A', 'B', 'C'])
+st.success(str(student_level[prediction][0]))
+                 
+
+
+
+
+        
+  
+  
+  
+  
