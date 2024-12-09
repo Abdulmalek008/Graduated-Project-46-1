@@ -20,7 +20,7 @@ with st.expander('📊 Dataset'):
     df.drop(columns=['Total'], inplace=True)
     
     # إضافة عمود الدرجات النهائية
-    def calculate_level(row):
+    def calculate_Final_Score(row):
         total_score = row['Attendance_Score'] + row['Mid_Exam_Score'] + row['Lab_Exam_Score'] + row['Activity_Score'] 
         if total_score >= 80:
             return 'A'
