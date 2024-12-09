@@ -17,7 +17,7 @@ with st.expander('📊 Dataset'):
     # حذف العمود غير المستخدم
     df.drop(columns=['Total'], inplace=True)
     
-    # إضافة عمود الدرجات النهائية
+    # عرض البيانات
     st.write('### Raw Data:')
     st.dataframe(df)
 
@@ -50,45 +50,52 @@ with st.sidebar:
     mid_exam_score = st.slider('Mid Exam Score', 0, 15, 10)
     lab_exam_score = st.slider('Lab Exam Score', 0, 15, 10)
     activity_score = st.slider('Activity Score', 0, 25, 15)
+
+# التأكد أن مجموع الدرجات اليدوية يساوي 60
+manual_score = attendance_score + mid_exam_score + lab_exam_score + activity_score
+if manual_score != 60:
+    st.warning(f"The sum of manual scores (attendance, mid exam, lab exam, and activity) should be exactly 60. Current sum: {manual_score}")
+else:
+    # الدرجة النهائية (Final Exam Score) ستكون من 40
     final_exam_score = st.slider('Final Exam Score', 0, 40, 20)
 
-# تجهيز بيانات المستخدم
-new_data = pd.DataFrame({
-    'Attendance_Score': [attendance_score],
-    'Mid_Exam_Score': [mid_exam_score],
-    'Lab_Exam_Score': [lab_exam_score],
-    'Activity_Score': [activity_score],
-    'Final_Score': [final_exam_score],
-    'Gender_Male': [1 if gender == 'Male' else 0]
-})
+    # تجهيز بيانات المستخدم
+    new_data = pd.DataFrame({
+        'Attendance_Score': [attendance_score],
+        'Mid_Exam_Score': [mid_exam_score],
+        'Lab_Exam_Score': [lab_exam_score],
+        'Activity_Score': [activity_score],
+        'Final_Score': [final_exam_score],
+        'Gender_Male': [1 if gender == 'Male' else 0]
+    })
 
-# التأكد من تطابق الأعمدة مع النموذج
-new_data = new_data.reindex(columns=X.columns, fill_value=0)
+    # التأكد من تطابق الأعمدة مع النموذج
+    new_data = new_data.reindex(columns=X.columns, fill_value=0)
 
-# التنبؤ بالدرجة النهائية
-predicted_score = model.predict(new_data)
+    # التنبؤ بالدرجة النهائية
+    predicted_score = model.predict(new_data)
 
-# عرض النتيجة للمستخدم
-st.write(f"The predicted final score for the student is: **{predicted_score[0]:.2f}**")
+    # عرض النتيجة للمستخدم
+    st.write(f"The predicted final score for the student is: **{predicted_score[0]:.2f}**")
 
-# عرض الجدول مع البيانات المدخلة والدرجة المتوقعة
-input_data = {
-    'Gender': [gender],
-    'Attendance Score': [attendance_score],
-    'Mid Exam Score': [mid_exam_score],
-    'Lab Exam Score': [lab_exam_score],
-    'Activity Score': [activity_score],
-    'Final Exam Score': [final_exam_score],
-    'Predicted Final Score': [predicted_score[0]]
-}
+    # عرض الجدول مع البيانات المدخلة والدرجة المتوقعة
+    input_data = {
+        'Gender': [gender],
+        'Attendance Score': [attendance_score],
+        'Mid Exam Score': [mid_exam_score],
+        'Lab Exam Score': [lab_exam_score],
+        'Activity Score': [activity_score],
+        'Final Exam Score': [final_exam_score],
+        'Predicted Final Score': [predicted_score[0]]
+    }
 
-input_df = pd.DataFrame(input_data)
+    input_df = pd.DataFrame(input_data)
 
-with st.expander('📊 Prediction Table'):
-    st.write('### Entered Data and Predicted Final Score:')
-    st.dataframe(input_df)
+    with st.expander('📊 Prediction Table'):
+        st.write('### Entered Data and Predicted Final Score:')
+        st.dataframe(input_df)
 
-# رسم بياني يوضح توزيع الدرجات النهائية
-with st.expander('📊 Final Score Distribution'):
-    st.write('### Distribution of Final Scores:')
-    st.bar_chart(df['Final_Score'])
+    # رسم بياني يوضح توزيع الدرجات النهائية
+    with st.expander('📊 Final Score Distribution'):
+        st.write('### Distribution of Final Scores:')
+        st.bar_chart(df['Final_Score'])
