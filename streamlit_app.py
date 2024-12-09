@@ -17,14 +17,14 @@ with st.expander('📊 Dataset'):
     df = pd.read_csv('https://raw.githubusercontent.com/Abdulmalek008/Graduated-Project-46-1/refs/heads/master/Student_Info%202.csv')
     
     # حذف العمود غير المستخدم
-    df.drop(columns=['Total','Final_Score'], inplace=True)
+    df.drop(columns=['Total'], inplace=True)
     
     # إضافة عمود الدرجات النهائية
     def calculate_level(row):
-        total_score = row['Attendance_Score'] + row['Mid_Exam_Score'] + row['Lab_Exam_Score'] + row['Activity_Score'] 
-        if total_score >= 40:
+        total_score = row['Attendance_Score'] + row['Mid_Exam_Score'] + row['Lab_Exam_Score'] + row['Activity_Score'] + row['Final_Score']
+        if total_score >= 80:
             return 'A'
-        elif total_score >= 25:
+        elif total_score >= 60:
             return 'B'
         else:
             return 'C'
