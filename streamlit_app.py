@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 
@@ -37,8 +37,12 @@ y = df['Grade']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
 # استخدام RandomForestClassifier
-model = RandomForestClassifier(n_estimators=100, random_state=42)
-model.fit(X_train, y_train)
+classifier = RandomForestClassifier(n_estimators=100, random_state=42)
+classifier.fit(X_train, y_train)
+
+# استخدام RandomForestRegressor لتنبؤ الفاينل سكور
+regressor = RandomForestRegressor(n_estimators=100, random_state=42)
+regressor.fit(X_train, df['Final_Score'])  # هنا نعتمد على 'Final_Score' للتنبؤ بدرجة الفاينل
 
 # واجهة المستخدم
 with st.sidebar:
@@ -57,13 +61,17 @@ new_data = pd.DataFrame({
 })
 
 # التنبؤ بالدرجة
-predicted_grade = model.predict(new_data)[0]
+predicted_grade = classifier.predict(new_data)[0]
+
+# التنبؤ بدرجة الفاينل
+predicted_final_score = regressor.predict(new_data)[0]
 
 # حساب المجموع الكلي من الدرجات المدخلة
 total_score = attendance_score + mid_exam_score + lab_exam_score + activity_score
 
 # عرض النتائج
 st.write(f"### Predicted Grade: {predicted_grade}")
+st.write(f"### Predicted Final Exam Score: {predicted_final_score:.2f}")
 st.write(f"### Total Score: {total_score:.2f}")
 
 # إنشاء جدول يعرض البيانات المدخلة والتنبؤ
@@ -73,6 +81,7 @@ input_data = {
     'Lab Exam Score': [lab_exam_score],
     'Activity Score': [activity_score],
     'Predicted Grade': [predicted_grade],
+    'Predicted Final Exam Score': [predicted_final_score],
     'Total Score': [total_score]
 }
 
