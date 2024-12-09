@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 
@@ -12,7 +12,6 @@ st.info('This app predicts the final exam score of students based on their perfo
 
 # تحميل البيانات
 with st.expander('📊 Dataset'):
-    # قراءة البيانات من ملف CSV
     df = pd.read_csv('https://raw.githubusercontent.com/Abdulmalek008/Graduated-Project-46-1/refs/heads/master/Student_Info%202.csv')
     
     # حذف العمود "Total" غير المستخدم
@@ -24,10 +23,8 @@ with st.expander('📊 Dataset'):
 
 # تجهيز البيانات للتعلم الآلي
 with st.expander('⚙️ Data Preparation'):
-    # ترميز عمود الجنس
     df_encoded = pd.get_dummies(df, columns=['Gender'], drop_first=True)
     
-    # تحديد الميزات (التي سيتم استخدامها في التدريب)
     X = df_encoded[['Attendance_Score', 'Mid_Exam_Score', 'Lab_Exam_Score', 'Activity_Score']]
     y = df['Final_Score']  # الهدف هو الفاينل سكور
     
@@ -39,8 +36,8 @@ with st.expander('⚙️ Data Preparation'):
 # تقسيم البيانات إلى تدريب واختبار
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
-# تدريب النموذج باستخدام RandomForestRegressor
-model = RandomForestRegressor(n_estimators=100, random_state=42)
+# استخدام LinearRegression بدلاً من RandomForest
+model = LinearRegression()
 model.fit(X_train, y_train)
 
 # واجهة المستخدم
