@@ -5,6 +5,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 # عنوان التطبيق
 st.title('🎓 Student Final Exam Score Prediction App')
@@ -15,12 +16,16 @@ st.info('This app predicts the final exam score of students based on their perfo
 with st.expander('📊 Dataset'):
     df = pd.read_csv('https://raw.githubusercontent.com/Abdulmalek008/Graduated-Project-46-1/refs/heads/master/Student_Info%202.csv')
     
-    # حذف العمود "Total" غير المستخدم
-    df.drop(columns=['Total'], inplace=True)
-    
-    # عرض البيانات
+    # عرض البيانات الأساسية
     st.write('### Raw Data:')
     st.dataframe(df)
+
+# تحقق من القيم الشاذة (outliers) من خلال رسم بياني
+with st.expander('📊 Check for Outliers'):
+    st.write('### Distribution of Scores:')
+    fig, ax = plt.subplots(1, 1, figsize=(10, 6))
+    sns.boxplot(data=df[['Attendance_Score', 'Mid_Exam_Score', 'Lab_Exam_Score', 'Activity_Score', 'Final_Score']], ax=ax)
+    st.pyplot(fig)
 
 # تجهيز البيانات للتعلم الآلي
 with st.expander('⚙️ Data Preparation'):
