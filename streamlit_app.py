@@ -29,7 +29,7 @@ with st.expander('📊 Dataset'):
         else:
             return 'C'
 
-    df['Final_Score'] = df.apply(calculate_final_score, axis=1)
+    df['Final_Score'] = df.apply(calculate_Final_Score, axis=1)
     st.write('### Raw Data:')
     st.dataframe(df)
 
