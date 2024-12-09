@@ -7,33 +7,39 @@ from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# عنوان التطبيق
-st.title('🎓 Student Final Exam Score Prediction App')
+# إعداد عنوان التطبيق
+st.title('🎓 Student Final Exam Score Prediction')
 
-st.info('This app predicts the final exam score of students based on their performance scores in attendance, mid exam, lab exam, and activity.')
+# وصف التطبيق
+st.info('This app predicts the final exam score based on attendance, mid exam, lab exam, and activity scores.')
 
 # تحميل البيانات
-with st.expander('📊 Dataset'):
-    df = pd.read_csv('https://raw.githubusercontent.com/Abdulmalek008/Graduated-Project-46-1/refs/heads/master/Student_Info%202.csv')
-    
-    # عرض البيانات الأساسية
-    st.write('### Raw Data:')
-    st.dataframe(df)
+# يمكن أن يكون لديك مصدر بيانات محلي أو تحميل من ملف CSV
+with st.expander('📊 Upload Student Data'):
+    # تحميل البيانات من ملف CSV
+    uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
+    if uploaded_file is not None:
+        df = pd.read_csv(uploaded_file)
+        st.write('### Raw Data:')
+        st.dataframe(df)
 
-# تحقق من القيم الشاذة (outliers) من خلال رسم بياني
-with st.expander('📊 Check for Outliers'):
+# عرض الرسم البياني للتوزيع
+with st.expander('📊 Visualize Data Distribution'):
     st.write('### Distribution of Scores:')
-    fig, ax = plt.subplots(1, 1, figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=(10, 6))
     sns.boxplot(data=df[['Attendance_Score', 'Mid_Exam_Score', 'Lab_Exam_Score', 'Activity_Score', 'Final_Score']], ax=ax)
     st.pyplot(fig)
 
-# تجهيز البيانات للتعلم الآلي
+# تجهيز البيانات
 with st.expander('⚙️ Data Preparation'):
-    df_encoded = pd.get_dummies(df, columns=['Gender'], drop_first=True)
-    
-    X = df_encoded[['Attendance_Score', 'Mid_Exam_Score', 'Lab_Exam_Score', 'Activity_Score']]
-    y = df['Final_Score']  # الهدف هو الفاينل سكور
-    
+    # إزالة الأعمدة غير المهمة أو التي لن نستخدمها
+    df = df.drop(columns=['Total_Score'], errors='ignore')
+
+    # تقسيم البيانات إلى المدخلات (features) والهدف (target)
+    X = df[['Attendance_Score', 'Mid_Exam_Score', 'Lab_Exam_Score', 'Activity_Score']]
+    y = df['Final_Score']  # نهدف للتنبؤ بدرجة الفاينل سكور
+
+    # عرض البيانات
     st.write('### Features (X):')
     st.dataframe(X)
     st.write('### Target (y):')
@@ -47,11 +53,11 @@ scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
-# استخدام RandomForestRegressor
+# استخدام نموذج RandomForestRegressor
 model = RandomForestRegressor(n_estimators=100, random_state=42)
 model.fit(X_train_scaled, y_train)
 
-# واجهة المستخدم
+# واجهة المستخدم للحصول على المدخلات
 with st.sidebar:
     st.header('🔍 Enter Student Data:')
     attendance_score = st.slider('Attendance Score', 0, 5, 3)
@@ -60,13 +66,13 @@ with st.sidebar:
     activity_score = st.slider('Activity Score', 0, 25, 15)
 
 # تجهيز بيانات المستخدم للتنبؤ
-new_data = np.array([[attendance_score, mid_exam_score, lab_exam_score, activity_score]])
-new_data_scaled = scaler.transform(new_data)
+user_data = np.array([[attendance_score, mid_exam_score, lab_exam_score, activity_score]])
+user_data_scaled = scaler.transform(user_data)
 
 # التنبؤ بدرجة الفاينل سكور
-predicted_final_score = model.predict(new_data_scaled)[0]
+predicted_final_score = model.predict(user_data_scaled)[0]
 
-# التأكد من أن الفاينل سكور لا يتجاوز 40 درجة
+# التأكد من أن درجة الفاينل لا تتجاوز 40
 predicted_final_score = min(predicted_final_score, 40)
 
 # حساب المجموع الكلي من الدرجات المدخلة
@@ -85,7 +91,7 @@ st.write(f"### Predicted Final Exam Score: {predicted_final_score:.2f}")
 st.write(f"### Total Score: {total_score:.2f}")
 st.write(f"### Predicted Grade: {grade}")
 
-# إنشاء جدول يعرض البيانات المدخلة والتنبؤ
+# عرض الجدول الذي يحتوي على البيانات المدخلة والتنبؤات
 input_data = {
     'Attendance Score': [attendance_score],
     'Mid Exam Score': [mid_exam_score],
@@ -98,7 +104,6 @@ input_data = {
 
 input_df = pd.DataFrame(input_data)
 
-# عرض الجدول للمستخدم
 with st.expander('📊 Prediction Table'):
     st.write('### Entered Data and Predicted Grade:')
     st.dataframe(input_df)
