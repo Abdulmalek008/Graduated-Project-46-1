@@ -39,7 +39,7 @@ with st.expander('⚙️ Data Preparation'):
     df_encoded = pd.get_dummies(df, columns=['Gender'], drop_first=True)
     
     # تحديد الميزات والهدف
-    X = df_encoded.drop(columns=['Level', 'Student_ID'])
+    X = df_encoded.drop(columns=['Level', 'Student_ID', 'Final_Score'])
     y = df['Level']
     
     st.write('### Features (X):')
