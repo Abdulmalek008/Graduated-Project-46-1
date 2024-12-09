@@ -24,7 +24,7 @@ with st.expander('📊 Dataset'):
 scaler = MinMaxScaler()
 normalized_features = scaler.fit_transform(df[['Attendance_Score', 'Mid_Exam_Score', 'Lab_Exam_Score', 'Activity_Score']])
 df_normalized = pd.DataFrame(normalized_features, columns=['Attendance_Score', 'Mid_Exam_Score', 'Lab_Exam_Score', 'Activity_Score'])
-df['Normalized_Final_Score'] = scaler.fit_transform(df[['Final_Score']])
+df['Normalized_Final_Score'] = df['Final_Score'] / 40  # تطبيع الفاينل ضمن النطاق [0, 1]
 
 # تقسيم البيانات
 X = df_normalized
@@ -53,11 +53,13 @@ input_data = pd.DataFrame({
 
 # تطبيع المدخلات
 normalized_input = scaler.transform(input_data)
-predicted_final_score = model.predict(normalized_input)[0]
-denormalized_final_score = scaler.inverse_transform([[0, 0, 0, 0, predicted_final_score]])[0][-1]
+predicted_normalized_final_score = model.predict(normalized_input)[0]
+
+# إعادة حساب الدرجة النهائية المتوقعة (من 40)
+predicted_final_score = predicted_normalized_final_score * 40
 
 # حساب المجموع الكلي
-total_score = attendance_score + mid_exam_score + lab_exam_score + activity_score + denormalized_final_score
+total_score = attendance_score + mid_exam_score + lab_exam_score + activity_score + predicted_final_score
 
 # تصنيف الدرجة
 if total_score >= 80:
@@ -68,6 +70,6 @@ else:
     grade = 'C'
 
 # عرض النتائج
-st.write(f"### Predicted Final Exam Score: {denormalized_final_score:.2f}")
-st.write(f"### Total Score: {total_score:.2f}")
+st.write(f"### Predicted Final Exam Score: {predicted_final_score:.2f} / 40")
+st.write(f"### Total Score: {total_score:.2f} / 100")
 st.write(f"### Predicted Grade: {grade}")
