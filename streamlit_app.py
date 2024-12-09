@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from sklearn.svm import SVR
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 
@@ -36,9 +35,10 @@ with st.expander('⚙️ Data Preparation'):
 # تقسيم البيانات إلى تدريب واختبار
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
+from sklearn.ensemble import RandomForestRegressor
 
-# استخدام دعم الآلات الناقلية بدلاً من شجرة القرار
-model = SVR(kernel='linear')
+# استخدام الغابات العشوائية (Random Forest) بدلاً من الانحدار الخطي
+model = RandomForestRegressor(n_estimators=100, random_state=42)
 model.fit(X_train, y_train)
 
 
