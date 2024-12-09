@@ -13,9 +13,6 @@ st.info('This app predicts the final exam score of students based on their perfo
 with st.expander('📊 Dataset'):
     df = pd.read_csv('https://raw.githubusercontent.com/Abdulmalek008/Graduated-Project-46-1/refs/heads/master/Student_Info%202.csv')
     
-    # حذف العمود "Total" غير المستخدم
-    df.drop(columns=['Total'], inplace=True)
-    
     # عرض البيانات
     st.write('### Raw Data:')
     st.dataframe(df)
@@ -29,10 +26,10 @@ def grade_category(total_score):
     else:
         return 'C'
 
-# تحويل مجموع الدرجات إلى فئة
+# تجهيز البيانات
+df['Total'] = df['Attendance_Score'] + df['Mid_Exam_Score'] + df['Lab_Exam_Score'] + df['Activity_Score']
 df['Grade'] = df['Total'].apply(grade_category)
 
-# تجهيز البيانات
 X = df[['Attendance_Score', 'Mid_Exam_Score', 'Lab_Exam_Score', 'Activity_Score']]
 y = df['Grade']
 
