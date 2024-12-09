@@ -17,7 +17,7 @@ with st.expander('📊 Dataset'):
     df = pd.read_csv('https://raw.githubusercontent.com/Abdulmalek008/Graduated-Project-46-1/refs/heads/master/Student_Info%202.csv')
     
     # حذف العمود غير المستخدم
-    df.drop(columns=['Total'], inplace=True)
+    df.drop(columns=['Total','Final_Score'], inplace=True)
     
     # إضافة عمود الدرجات النهائية
     def calculate_level(row):
